@@ -1,5 +1,5 @@
 services:
-  xxx-changeme-app:
+  productmanager-app:
     build:
       context: .
       dockerfile: .config/Dockerfile.dev

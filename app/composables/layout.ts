@@ -35,8 +35,8 @@ export const useLayout = () => {
 
         return {
             titleTemplate(title) {
-                if (!title) return 'Swindler';
-                return `${ title } | Swindler`;
+                if (!title) return 'Manager';
+                return `${ title } | Manager`;
             },
             meta: [
                 {

@@ -4,7 +4,7 @@
             class="header"
         >
             <div class="header-text">
-                Swindler
+                Manager
             </div>
             <view-menu/>
             <view-login/>

@@ -24,7 +24,7 @@ import { useStorage } from '@vueuse/core';
 const config = useRuntimeConfig();
 const version = config.public.version as string;
 
-const lastSeenVersion = useStorage('swindler-last-seen-version', '');
+const lastSeenVersion = useStorage('Manager-last-seen-version', '');
 
 const isVisible = ref(false);
 const markdown = ref('');
