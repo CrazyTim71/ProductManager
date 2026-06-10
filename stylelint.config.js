@@ -13,7 +13,7 @@ export default {
     rules: {
         'no-descending-specificity': null,
         'function-no-unknown': [true, {
-            ignoreFunctions: ['varToRgba', 'vartorgba', 'toRawRGB', 'torawrgb', 'v-bind'],
+            ignoreFunctions: ['varToRgba', 'toRawRGB', 'v-bind'],
         }],
         'selector-pseudo-class-no-unknown': [
             true,
@@ -54,14 +54,4 @@ export default {
         'at-rule-descriptor-value-no-unknown': null,
         'at-rule-no-unknown': null,
     },
-    overrides: [
-        {
-            files: ['**/*.vue'],
-            customSyntax: 'postcss-html',
-        },
-        {
-            files: ['**/*.scss'],
-            customSyntax: 'postcss-scss',
-        },
-    ],
 };

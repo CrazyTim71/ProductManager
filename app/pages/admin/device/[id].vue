@@ -1,60 +1,67 @@
 <template>
-    <common-edit-page @save="save" @cancel="cancel" :page/>
+    <view-edit-page
+        :page
+        @cancel="cancel"
+        @save="save"
+    />
 </template>
 
 <script setup lang="ts">
 import type { EditPage } from '~~/types/components';
 import type { Device, DeviceCategory } from '@prisma/client';
 
-// Get id from route params
 const route = useRoute();
-const id = route.params.id as string;
+const router = useRouter();
+const id = computed(() => route.params.id as string);
 
-const { data: device } = id !== 'new' 
-  ? useFetch<Device>(`/api/v1/admin/device/${id}`)
-  : { data: ref<Device | null>(null) };
+const { data: device } = id.value !== 'new'
+    ? useFetch<Device>(`/api/v1/admin/device/${ id.value }`)
+    : { data: ref<Device | null>(null) };
 
-const { data: categories } = id !== 'new' 
-  ? useFetch<DeviceCategory[]>(`/api/v1/admin/device/categories/${id}`)
-  : { data: ref<DeviceCategory[]>([]) };
+const { data: categories } = id.value !== 'new'
+    ? useFetch<DeviceCategory[]>(`/api/v1/admin/device/categories/${ id.value }`)
+    : { data: ref<DeviceCategory[]>([]) };
 
-const page: Ref<EditPage> = ref<EditPage>({
-        title: id === 'new' ? 'Create Device Type' : 'Edit Device Type',
-        fields: [
-            {
-                label: 'Name',
-                type: 'text',
-                value: device.value?.name || '',
-            },
-            {
-                label: 'Description',
-                type: 'text',
-                value: device.value?.description || '',
-            },
-            {
-                label: 'Category',
-                type: 'category',
-                options: categories.value?.map(e => e.id),
-                value: categories.value,
-            }
-        ],
-        isNew: id === 'new',
-    });
+const page = ref<EditPage>({
+    title: id.value === 'new' ? 'Create Device Type' : 'Edit Device Type',
+    fields: [
+        { label: 'Name', type: 'text', value: '' },
+        { label: 'Description', type: 'text', value: '' },
+        { label: 'Category', type: 'category', options: [], value: [] },
+    ],
+    isNew: id.value === 'new',
+});
+
+watch([device, categories, id], () => {
+    page.value.title = id.value === 'new' ? 'Create Device Type' : 'Edit Device Type';
+    page.value.fields = [
+        { label: 'Name', type: 'text', value: device.value?.name || '' },
+        { label: 'Description', type: 'text', value: device.value?.description || '' },
+        { label: 'Category', type: 'category', options: categories.value?.map(e => e.id) || [], value: categories.value || [] },
+    ];
+    page.value.isNew = id.value === 'new';
+});
+
+const { showToast } = useToastManager();
 
 function save() {
     const device = {
         name: page.value.fields[0]?.value as string,
         description: page.value.fields[1]?.value as string,
         categories: (page.value.fields[2]?.value as DeviceCategory[]).map(e => e.id),
-    }
-    $fetch(id === 'new' ? '/api/v1/admin/device' : `/api/v1/admin/device/${id}`, {
-        method: id === 'new' ? 'POST' : 'PUT',
-        body: device
+    };
+    $fetch(id.value === 'new' ? '/api/v1/admin/device' : `/api/v1/admin/device/${ id.value }`, {
+        method: id.value === 'new' ? 'POST' : 'PUT',
+        body: device,
+    });
+
+    showToast({
+        message: 'Saved',
     })
 }
 
 function cancel() {
-
+    router.push('/admin/device');
 }
 </script>
 

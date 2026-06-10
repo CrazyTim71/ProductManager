@@ -1,24 +1,24 @@
 <template>
     <common-box>
-        <common-input-text
+        <ui-input-text
             v-model="username"
             @keyup.enter="signup"
-        >Username</common-input-text>
-        <common-input-text
+        >Username</ui-input-text>
+        <ui-input-text
             v-model="email"
             @keyup.enter="signup"
-        >E-Mail</common-input-text>
-        <common-input-text
+        >E-Mail</ui-input-text>
+        <ui-input-text
             v-model="password"
             input-type="password"
             @keyup.enter="signup"
-        >Password</common-input-text>
-        <common-input-text
+        >Password</ui-input-text>
+        <ui-input-text
             v-model="passwordre"
             input-type="password"
             @keyup.enter="signup"
-        >Repeat Password</common-input-text>
-        <common-button @click="signup">Signup</common-button>
+        >Repeat Password</ui-input-text>
+        <ui-button @click="signup">Signup</ui-button>
     </common-box>
 </template>
 

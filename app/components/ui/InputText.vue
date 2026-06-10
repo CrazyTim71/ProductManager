@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-    const props = defineProps({
+const props = defineProps({
     inputAttrs: {
         type: Object as PropType<Record<string, any>>,
         default: () => {},

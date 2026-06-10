@@ -39,7 +39,7 @@ async function makeSession(username: string, userId: string, event: H3Event<Even
         userId,
         timeStamp: iat,
         random,
-        role
+        role,
     };
 
     await setRedisSync(`user-${ random }`, JSON.stringify(data), userSessionAvailableMS);

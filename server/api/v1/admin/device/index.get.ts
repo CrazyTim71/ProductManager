@@ -1,7 +1,16 @@
+import type { DeviceWithCategories } from '~~/types/device';
+
 export default defineEventHandler(async event => {
     const devices = await prisma.device.findMany({
-        orderBy: {name : 'asc' },
+        orderBy: { name: 'asc' },
+        include: {
+            deviceCategories: {
+                include: {
+                    category: true,
+                },
+            },
+        },
     });
-    
-    return devices;
+
+    return devices as DeviceWithCategories[];
 });

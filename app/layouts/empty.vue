@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { colorsList } from '#imports';
-import ViewVersion from '~/components/views/ViewVersion.vue';
+import ViewVersion from '~/components/view/ViewVersion.vue';
 
 defineSlots<{ default: () => any }>();
 

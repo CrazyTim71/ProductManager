@@ -1,6 +1,6 @@
 export default defineEventHandler(async event => {
     const { id } = event.context.params || {};
-    
+
     if (!id) {
         throw createApiError('Device ID is required', 400);
     }
@@ -12,11 +12,11 @@ export default defineEventHandler(async event => {
         include: {
             deviceCategories: {
                 include: {
-                    category: true
-                }
-            }
-        }
+                    category: true,
+                },
+            },
+        },
     });
-    
+
     return devices?.deviceCategories.map(e => e.category);
 });

@@ -20,9 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import ViewMenu from '~/components/views/ViewMenu.vue';
-import ViewLogin from '~/components/views/ViewLogin.vue';
-import ViewVersion from '~/components/views/ViewVersion.vue';
+import ViewMenu from '~/components/view/ViewMenu.vue';
+import ViewLogin from '~/components/view/ViewLogin.vue';
+import ViewVersion from '~/components/view/ViewVersion.vue';
 import ChangelogPopup from '~/components/common/CommonChangelogPopup.vue';
 import { colorsList } from '#imports';
 

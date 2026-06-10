@@ -1,15 +1,15 @@
 <template>
     <common-box>
-        <common-input-text
+        <ui-input-text
             v-model="username"
             @keyup.enter="login"
-        >Username</common-input-text>
-        <common-input-text
+        >Username</ui-input-text>
+        <ui-input-text
             v-model="password"
             input-type="password"
             @keyup.enter="login"
-        >Password</common-input-text>
-        <common-button @click="login">Login</common-button>
+        >Password</ui-input-text>
+        <ui-button @click="login">Login</ui-button>
     </common-box>
 </template>
 

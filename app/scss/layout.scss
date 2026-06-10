@@ -26,3 +26,16 @@ html, body {
     scrollbar-width: thin;
     box-sizing: border-box;
 }
+
+/*
+Source - https://stackoverflow.com/a/4407335
+Posted by Blowsie, modified by community. See post 'Timeline' for change history
+Retrieved 2026-06-09, License - CC BY-SA 4.0
+*/
+
+.noselect { /* Safari */ /* Konqueror HTML */ /* Old versions of Firefox */ /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
+    -webkit-touch-callout: none; /* iOS Safari */
+}

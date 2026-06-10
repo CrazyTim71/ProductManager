@@ -6,13 +6,13 @@
 import type { EditPage } from '~~/types/components';
 import type { DeviceCategory } from '@prisma/client';
 
-// Get id from route params
 const route = useRoute();
-const id = route.params.id as string;
+const id = computed(() => route.params.id as string);
 
-const category: Ref<DeviceCategory | null> = ref(null);
+const { data: category } = await useFetch<DeviceCategory>(() => `/api/admin/categories/${ id.value }`);
 
-const page: Ref<EditPage> = ref<EditPage>({
+const page: ComputedRef<EditPage> = computed(() => {
+    return {
         title: 'Edit Device Type',
         fields: [
             {
@@ -26,16 +26,8 @@ const page: Ref<EditPage> = ref<EditPage>({
                 value: category.value?.description || '',
             },
         ],
-        isNew: id === 'new',
-    });
-
-onMounted(async () => {
-    if (id === 'new') {
-        category.value = null;
-    } else {
-        const { data } = await useFetch(`/api/admin/categories/${id}`);
-        category.value = data.value as DeviceCategory;
-    }
+        isNew: id.value === 'new',
+    };
 });
 </script>
 

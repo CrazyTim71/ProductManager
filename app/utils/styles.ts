@@ -1,7 +1,7 @@
 import type { PartialRecord } from '../../types';
 
 export const colorsList = {
-    //#region neutrals
+    // #region neutrals
     white: '#FAFAFA',
     black: '#151515',
     blackAlpha2: '#15151505',
@@ -18,7 +18,7 @@ export const colorsList = {
     whiteAlpha24: '#FAFAFA3d',
     whiteAlpha36: '#FAFAFA5c',
     whiteAlpha64: '#FAFAFAa3',
-    
+
     lightgray0: '#F7F7FA',
     lightgray50: '#F2F2F7',
     lightgray100: '#EDEDF2',

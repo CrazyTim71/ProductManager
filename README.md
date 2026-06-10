@@ -61,8 +61,9 @@ bun run dev
 ### Nützliche Befehle
 
 - `bun run build` - Production-Build
-- `bun run lint` - TypeScript- und Style-Linting
+- `bun run lint` - Automatische Korrekturen
 - `bun run lint:fix` - Automatische Korrekturen
+- `bun run lint:check` - TypeScript- und Style-Linting
 - `bun run db-push` - Prisma Schema in die Datenbank schreiben
 - `bun run db-deploy` - Prisma Migrationen anwenden
 

@@ -12,14 +12,14 @@
 
             <div class="toast-title">{{ toast.title }}</div>
 
-            <button
+            <ui-button
                 aria-label="Close"
                 class="toast-close"
                 type="button"
                 @click="emit('close')"
             >
                 <icon name="material-symbols:x-circle-outline"/>
-            </button>
+            </ui-button>
         </div>
         <div
             v-if="toast.message"
