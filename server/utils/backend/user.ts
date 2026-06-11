@@ -8,11 +8,6 @@ interface CreateUserResult {
     error?: 'ALREADY_EXISTS' | 'DATABASE_ERROR';
 }
 
-interface CheckNicknameResult {
-    available: boolean;
-    error?: 'ALREADY_FAKEUSER' | 'ALREADY_REGISTERED';
-}
-
 export async function createUser(
     username: string,
     email: string,
@@ -51,7 +46,7 @@ export async function createUser(
                 isActive,
                 displayName: username,
                 role: admin ? 'ADMIN' : staff ? 'STAFF' : 'CUSTOMER',
-            }
+            },
         });
 
         if (!newUser) {

@@ -1,7 +1,6 @@
 <template>
     <div
         class="category noselect"
-        :class="addable || deletable ? 'category-selectable' : ''"
         @click="$emit('selected', $event)"
     >
         <div
@@ -9,13 +8,7 @@
             :style="{
                 '--category-color': category?.color ?? '$lightgray300',
             }"
-        ><icon
-            v-if="addable"
-            name="material-symbols:add"
-        /> <icon
-            v-if="deletable"
-            name="material-symbols:close"
-        /></div>
+        ></div>
         {{ category?.slug }}
     </div>
 </template>
@@ -26,14 +19,6 @@ import type { DeviceCategory } from '@prisma/client';
 defineProps({
     category: {
         type: Object as PropType<DeviceCategory>,
-    },
-    addable: {
-        type: Boolean,
-        default: false,
-    },
-    deletable: {
-        type: Boolean,
-        default: false,
     },
 });
 
@@ -52,9 +37,6 @@ defineEmits({
     align-items: center;
     justify-content: center;
 
-    &-selectable {
-        cursor: pointer;
-    }
 
     &-color {
         display: flex;

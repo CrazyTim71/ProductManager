@@ -23,8 +23,30 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             icon: 'material-symbols:other-houses',
         },
         {
-            text: 'Admin',
+            text: 'Requests',
+            path: '/request',
+            icon: 'material-symbols:search',
+        },
+        {
+            text: 'Staff',
             icon: 'material-symbols:computer',
+            hide: !(store.me?.isStaff || store.me?.isAdmin),
+            children: [
+                {
+                    text: 'Requests',
+                    path: '/staff/request',
+                    icon: 'material-symbols:home-repair-service',
+                },
+                {
+                    text: 'History',
+                    path: '/staff/history',
+                    icon: 'material-symbols:history',
+                },
+            ],
+        },
+        {
+            text: 'Admin',
+            icon: 'material-symbols:admin-panel-settings',
             hide: !(store.me?.isAdmin),
             children: [
                 {
@@ -35,7 +57,12 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 {
                     text: 'Categories',
                     path: '/admin/category',
-                    icon: 'material-symbols:select',
+                    icon: 'material-symbols:list',
+                },
+                {
+                    text: 'Brands',
+                    path: '/admin/brand',
+                    icon: 'material-symbols:list',
                 },
             ],
         },

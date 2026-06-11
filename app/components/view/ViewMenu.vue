@@ -9,12 +9,14 @@
             <ui-button
                 class="header__menu_btn-container"
                 :disabled="button.disabled"
-                :icon="button.icon"
                 :to="button.path"
-                :type="button.active ? 'secondary-875' : 'secondary'"
+                :type="button.active ? 'primary' : 'secondary'"
                 :width="button.width"
                 @click="button.action?.()"
             >
+            <template #icon>
+                <Icon :name="button.icon as string"/>
+            </template>
                 <div class="header__menu_btn">
                     <div class="header__menu_btn_text">
                         {{ button.text }}
@@ -38,11 +40,13 @@
                     v-for="childrenButton in button.children"
                     :key="childrenButton.text"
                     :disabled="childrenButton.disabled"
-                    :icon="childrenButton.icon"
                     :to="childrenButton.path"
                     :type="childrenButton.active ? 'primary' : 'secondary'"
                     @click="childrenButton.action?.()"
                 >
+                <template #icon>
+                    <Icon :name="childrenButton.icon as string"/>
+                </template>
                     {{ childrenButton.text }}
                 </ui-button>
             </div>

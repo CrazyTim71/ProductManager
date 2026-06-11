@@ -16,8 +16,10 @@
 <script setup lang="ts">
 import { ToastMode } from '~~/types/toast';
 import { useToastManager } from '~/composables/toastManager';
+import { useStore } from '~/store';
 
 const { showToast } = useToastManager();
+const store = useStore();
 
 const router = useRouter();
 const username = ref<string>();
@@ -37,6 +39,7 @@ async function login() {
                 password: password.value,
             }),
         });
+        void store.fetchMe();
         if (response.redirect) {
             router.push(response.redirect);
         }

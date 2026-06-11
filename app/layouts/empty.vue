@@ -10,8 +10,16 @@
 <script setup lang="ts">
 import { colorsList } from '#imports';
 import ViewVersion from '~/components/view/ViewVersion.vue';
+import { useStore } from '~/store';
 
 defineSlots<{ default: () => any }>();
+
+const store = useStore();
+
+onMounted(() => {
+    void store.fetchMe();
+});
+
 
 useLayout();
 </script>

@@ -49,8 +49,17 @@ CREATE TABLE "Device" (
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deviceBrandId" TEXT NOT NULL,
 
     CONSTRAINT "Device_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DeviceBrand" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "DeviceBrand_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -304,6 +313,9 @@ CREATE UNIQUE INDEX "DeviceCategory_slug_key" ON "DeviceCategory"("slug");
 CREATE UNIQUE INDEX "Device_name_key" ON "Device"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "DeviceBrand_name_key" ON "DeviceBrand"("name");
+
+-- CreateIndex
 CREATE INDEX "RepairRequest_customerId_status_idx" ON "RepairRequest"("customerId", "status");
 
 -- CreateIndex
@@ -380,6 +392,9 @@ CREATE INDEX "Notification_userId_status_idx" ON "Notification"("userId", "statu
 
 -- CreateIndex
 CREATE INDEX "Notification_requestId_createdAt_idx" ON "Notification"("requestId", "createdAt");
+
+-- AddForeignKey
+ALTER TABLE "Device" ADD CONSTRAINT "Device_deviceBrandId_fkey" FOREIGN KEY ("deviceBrandId") REFERENCES "DeviceBrand"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "DeviceCategories" ADD CONSTRAINT "DeviceCategories_deviceId_fkey" FOREIGN KEY ("deviceId") REFERENCES "Device"("id") ON DELETE CASCADE ON UPDATE CASCADE;

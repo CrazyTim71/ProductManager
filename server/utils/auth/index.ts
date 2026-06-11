@@ -126,6 +126,16 @@ export async function requireAuth(event: H3Event) {
     }
 }
 
+export async function requireStaffAuth(event: H3Event) {
+    await requireAuth(event);
+    const admin = event.context.user?.role === UserRole.ADMIN;
+    const staff = event.context.user?.role === UserRole.STAFF;
+
+    if (!admin && !staff) {
+        throw createApiError('Forbidden', 403);
+    }
+}
+
 export async function requireAdminAuth(event: H3Event) {
     await requireAuth(event);
     const admin = event.context.user?.role === UserRole.ADMIN;

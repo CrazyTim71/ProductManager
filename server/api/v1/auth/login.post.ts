@@ -41,7 +41,7 @@ export default defineEventHandler(async event => {
             return sendApiResponse(event, 'Wrong username or password', 400);
         }
 
-        if(!user.isActive) {
+        if (!user.isActive) {
             console.warn(`[Auth:Login] Failed login attempt - user: ${ username } from IP: ${ clientIp } user is inactive`);
             return sendApiResponse(event, 'User is deactivated', 403);
         }

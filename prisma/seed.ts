@@ -141,6 +141,20 @@ const workItemTypes = [
     },
 ];
 
+const brands: string[] = [
+    'Apple',
+    'Samsung',
+    'Google',
+    'Huawei',
+    'Oneplus',
+    'Xiaomi',
+    'Bosch',
+    'Siemens',
+    'Audi',
+    'BMW',
+    'HP',
+];
+
 async function main() {
     for (const category of deviceCategories) {
         await prisma.deviceCategory.upsert({
@@ -167,6 +181,18 @@ async function main() {
                 isActive: true,
             },
             create: workItemType,
+        });
+    }
+
+    for (const brand of brands) {
+        await prisma.deviceBrand.upsert({
+            where: { name: brand },
+            update: {
+                name: brand,
+            },
+            create: {
+                name: brand,
+            },
         });
     }
 

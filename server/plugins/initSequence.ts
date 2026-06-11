@@ -1,12 +1,7 @@
 import { defineNitroPlugin } from 'nitropack/runtime';
 import { createUser } from '../../server/utils/backend/user';
 import { initJWTSecret } from '../../server/utils/crypto/jwt';
-import { createWordList } from '../../server/utils/backend/wordlists';
-import type { ImportWordListResult } from '../../server/utils/backend/wordlists';
 import { prisma } from '../../server/utils/prisma';
-import fs from 'fs';
-import path from 'path';
-import { tr } from 'zod/v4/locales';
 
 
 export default defineNitroPlugin(async () => {
@@ -71,12 +66,13 @@ async function initializeAdminUser() {
                     if (success) {
                         console.log(`Admin user '${ username }' enabled for login in development mode.`);
                     }
-                } else {
+                }
+                else {
                     if (!result.user) {
                         throw new Error('Missing user data');
                     }
 
-                    const success = await prisma.user.update({
+                    await prisma.user.update({
                         where: { id: result.user.id },
                         data: { isActive: false },
                     });

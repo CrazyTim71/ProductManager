@@ -22,7 +22,7 @@ const page: Ref<EditPage> = ref({
         {
             label: 'Name',
             type: 'text',
-            value: '',
+            value: category.value?.name || '',
         },
         {
             label: 'Slug',
@@ -32,12 +32,12 @@ const page: Ref<EditPage> = ref({
         {
             label: 'Description',
             type: 'text',
-            value: '',
+            value: category.value?.description || '',
         },
         {
             label: 'Color',
             type: 'color',
-            value: '',
+            value: category.value?.color || '',
         },
     ],
     isNew: true,

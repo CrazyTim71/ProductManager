@@ -2,12 +2,14 @@
     <common-page :title="params.title">
         <div class="parameters-list">
             <div
-                v-for="e in params.entries"
+                v-for="(e, index) in params.entries"
+                :key="index"
                 class="parameters-entry-container"
             >
                 <div class="parameters-entry">
                     <div
                         v-for="f in e.fields"
+                        :key="f.label"
                         class="parameters-entry-field"
                     >
                         <template v-if="f.type === 'text'">
@@ -19,6 +21,7 @@
                         >
                             <common-category
                                 v-for="c in f.value as DeviceCategory[]"
+                                :key="c.id"
                                 :category="c"
                             />
                         </div>
@@ -69,9 +72,11 @@ const router = useRouter();
 <style lang="scss" scoped>
 .parameters-list {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
-    height: fit-content;
+
     width: 100%;
+    height: fit-content;
 }
 
 .page-color {
@@ -96,14 +101,18 @@ const router = useRouter();
     &-container {
         display: flex;
         flex-direction: column;
+        gap: 16px;
         justify-content: space-between;
-        flex-wrap: wrap;
 
         width: 10%;
         padding: 16px;
         border-radius: 16px;
 
         background: $darkgray900;
+
+        @include mobile {
+            width: 20%;
+        }
     }
 
     &-buttons {
@@ -111,9 +120,9 @@ const router = useRouter();
         flex-direction: row;
         gap: 8px;
         justify-content: space-between;
-        padding: 4px;
 
         width: 100%;
+        padding: 4px;
     }
 
     &-field {

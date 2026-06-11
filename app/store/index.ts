@@ -39,9 +39,14 @@ export const useStore = defineStore('index', {
             }
         },
         async fetchMe() {
-            const data = await $fetch<WebUser>('/api/v1/users/me');
-            this.me = data;
-            console.log(this.me);
-        }
+            try {
+                const data = await $fetch<WebUser>('/api/v1/user/me');
+                this.me = data;
+                console.log(this.me);
+            }
+            catch {
+                this.me = undefined;
+            }
+        },
     },
 });

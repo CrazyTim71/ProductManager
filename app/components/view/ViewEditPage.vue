@@ -17,10 +17,39 @@
                     v-if="field.type === 'checkbox'"
                     v-model="field.value as boolean"
                 >{{ field.label }}</ui-checkbox>
-                <common-category-selector
+                <common-selector
                     v-if="field.type === 'category'"
                     v-model="field.value as DeviceCategory[]"
-                >{{ field.label }}</common-category-selector>
+                    path="/api/v1/admin/device-category"
+                >
+                    <template
+                        #add="{ item }"
+                    >
+                        <common-category
+                            :category="item"
+                        />
+                    </template>
+                    <template #remove="{ item }">
+                        <common-category
+                            :category="item"
+                        />
+                    </template>
+                </common-selector>
+                <common-selector
+                    v-if="field.type === 'brand'"
+                    v-model="field.value as DeviceBrand[]"
+                    path="/api/v1/admin/brand"
+                    one
+                >
+                    <template
+                        #add="{ item }"
+                    >
+                        {{ item.name }}
+                    </template>
+                    <template #remove="{ item }">
+                        {{ item.name }}
+                    </template>
+                </common-selector>
                 <ui-input-text
                     v-if="field.type === 'label'"
                     v-model="field.value as string"
@@ -53,7 +82,7 @@
 
 <script setup lang="ts">
 import type { EditPage } from '~~/types/components';
-import type { DeviceCategory } from '@prisma/client';
+import type { DeviceBrand, DeviceCategory } from '@prisma/client';
 
 defineProps({
     page: {

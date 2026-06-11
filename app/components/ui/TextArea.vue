@@ -19,7 +19,7 @@
                     class="input__input_icon"
                     :name="icon"
                 />
-                <input
+                <textarea
                     ref="inputRef"
                     v-bind="inputAttrs"
                     v-model="model"
@@ -31,7 +31,7 @@
                     @focus="focused = true"
                     @focusout="focused = false"
                     @input="$emit('input', $event)"
-                >
+                />
 
             </label>
         </div>
@@ -151,8 +151,9 @@ defineExpose({
         align-items: center;
         width: 100%;
 
-        input {
+        textarea {
             width: 100%;
+            height: v-bind(height);
             padding: 12px 0;
             border: none;
 

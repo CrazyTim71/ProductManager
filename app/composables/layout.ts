@@ -1,6 +1,5 @@
 import { useStore } from '~/store/index';
 import { colorsList, themesList } from '~/utils/styles';
-import type { WebUser } from '~~/types/user';
 
 const store = useStore();
 

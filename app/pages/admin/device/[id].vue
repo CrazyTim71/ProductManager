@@ -8,34 +8,38 @@
 
 <script setup lang="ts">
 import type { EditPage } from '~~/types/components';
-import type { Device, DeviceCategory } from '@prisma/client';
+import type { DeviceCategory } from '@prisma/client';
+import type { DeviceWithRelations } from '~~/types/req'
 
 const route = useRoute();
 const router = useRouter();
 const id = computed(() => route.params.id as string);
 
-const { data: device } = useFetch<Device>(`/api/v1/admin/device/${ id.value }`);
-
-const { data: categories } = useFetch<DeviceCategory[]>(`/api/v1/admin/device/categories/${ id.value }`);
+const { data: device } = useFetch<DeviceWithRelations>(() => `/api/v1/admin/device/${ id.value }`);
 
 const page = ref<EditPage>({
-    title: id.value === 'new' ? 'Create Device Type' : 'Edit Device Type',
+    title: 'Create Device Type',
     fields: [
         { label: 'Name', type: 'text', value: '' },
         { label: 'Description', type: 'text', value: '' },
         { label: 'Category', type: 'category', options: [], value: [] },
+        { label: 'Brand', type: 'brand', value: []},
     ],
     isNew: true,
 });
 
-watch([device, categories, id], () => {
+watch([device, id], () => {
+    if (!device.value?.deviceCategories) return;
     page.value.title = id.value === 'new' ? 'Create Device Type' : 'Edit Device Type';
     page.value.fields = [
         { label: 'Name', type: 'text', value: device.value?.name || '' },
         { label: 'Description', type: 'text', value: device.value?.description || '' },
-        { label: 'Category', type: 'category', options: categories.value?.map(e => e.id) || [], value: categories.value || [] },
+        { label: 'Category', type: 'category', value: device.value?.deviceCategories.map(e => e.category) || [] },
+        { label: 'Brand', type: 'label', value: device.value?.deviceBrand.name},
     ];
     page.value.isNew = id.value === 'new';
+}, {
+    immediate: true
 });
 
 const { showToast } = useToastManager();

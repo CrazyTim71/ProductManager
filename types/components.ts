@@ -1,4 +1,4 @@
-import type { DeviceCategory } from '@prisma/client';
+import type { DeviceBrand, DeviceCategory } from '@prisma/client';
 
 export interface EditPage {
     title: string;
@@ -8,8 +8,8 @@ export interface EditPage {
 
 export interface EditPageField {
     label: string;
-    type: 'text' | 'number' | 'checkbox' | 'category' | 'label' | 'color';
-    value?: string | DeviceCategory[] | number | boolean | null | undefined;
+    type: 'text' | 'number' | 'checkbox' | 'category' | 'label' | 'color' | 'brand';
+    value?: string | DeviceCategory[] | DeviceBrand | number | boolean | null | undefined;
     options?: string[]; // For select type
 }
 

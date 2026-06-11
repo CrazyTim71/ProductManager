@@ -7,19 +7,19 @@
             v-if="$slots.default"
             class="selector_label"
         >
-            <slot/>
+            {{ title }}
         </div>
         <div
             class="selector_container"
             @click="searchTextRef?.focus()"
         >
-            <common-category
-                v-for="c in selectedCategories"
-                :key="c.slug"
-                :category="c"
-                deletable
-                @selected="() => removeCategory(c)"
+        <template v-for="item in selectedItems">
+            <ui-button @click="removeItem(item)">Remove</ui-button>
+            <slot
+                :item="item"
+                name="remove"
             />
+        </template>
             <icon
                 name="material-symbols:arrow-drop-down"
                 :size="22"
@@ -38,57 +38,73 @@
             class="selector_select"
         >
             <div class="selector_select_centerbox">
-                <common-category
-                    v-for="c in showAll ? leftCategories : searchCategories"
-                    :key="c.slug"
-                    addable
-                    :category="c"
-                    @selected="() => addCategory(c)"
+                <template v-for="item in showAll ? leftEntries : searchEntries">
+                    <div class="selector_select_controll">
+                        <ui-button @click="addItem(item)">Add</ui-button>
+                    <slot
+                    :item="item"
+                    name="add"
                 />
-                {{ searchCategories?.length === 0 ? 'No category found' : '' }}
+                    </div>
+                </template>
+                {{ searchEntries?.length === 0 ? 'Nothing found' : '' }}
             </div>
         </div>
     </div>
 </template>
 
-<script setup lang="ts">
-import type { DeviceCategory } from '@prisma/client';
-
-defineProps({
+<script setup lang="ts" generic="T extends { id: string, name: string }">
+const props = defineProps({
+    title: {
+        type: String,
+    },
     height: {
         type: String,
     },
     disabled: {
         type: Boolean,
     },
+    path: {
+        type: String,
+        required: true,
+    },
+    one: {
+        type: Boolean,
+        default: false,
+    }
 });
 
-defineSlots<{ default?: () => string }>();
-const selectedCategories = defineModel<DeviceCategory[]>({
-    type: Array as PropType<DeviceCategory[]>,
+defineSlots<{
+    add(props: { item: T }): any;
+    remove(props: { item: T }): any;
+}>();
+
+const selectedItems = defineModel<T[]>({
+    type: Array as PropType<T[]>,
     default: () => [],
 });
 
 const focused = defineModel('focused', { type: Boolean });
 
-const { data: allCategories } = useAsyncData<DeviceCategory[]>('categories', () => $fetch<DeviceCategory[]>('/api/v1/admin/device-category'), { immediate: true });
-const leftCategories = computed(() => allCategories.value?.filter(e => !selectedCategories.value?.some(s => s.id === e.id)));
+const { data: allEntries } = useFetch<T[]>(props.path);
+const leftEntries = computed(() => allEntries.value?.filter(e => !selectedItems.value?.some(s => s.id === e.id)));
 const searchText = ref('');
 const searchTextRef = useTemplateRef('searchText');
-const searchCategories = computed(() => leftCategories.value?.filter(e => e.slug.startsWith(searchText.value) || e.name.startsWith(searchText.value) || e.name.includes(searchText.value) || e.slug.includes(searchText.value)));
+const searchEntries = computed(() => leftEntries.value?.filter(e => e.name.toLowerCase().startsWith(searchText.value.toLowerCase()) || e.name.includes(searchText.value)));
 const showAll = ref(false);
 
-function addCategory(c: DeviceCategory) {
-    if (!selectedCategories.value) selectedCategories.value = [];
-    if (!selectedCategories.value.some(e => e.id === c.id)) {
-        selectedCategories.value.push(c);
+function addItem(c: T) {
+    if(props.one) {
+        selectedItems.value = [c];
+    } else {
+        selectedItems.value.push(c);
     }
 }
 
-function removeCategory(c: DeviceCategory) {
-    if (!selectedCategories.value) return;
-    const idx = selectedCategories.value.findIndex(e => e.id === c.id);
-    if (idx !== -1) selectedCategories.value.splice(idx, 1);
+function removeItem(c: T) {
+    if (!selectedItems.value) return;
+    const idx = selectedItems.value.findIndex(e => e.id === c.id);
+    if (idx !== -1) selectedItems.value.splice(idx, 1);
 }
 </script>
 
@@ -147,6 +163,7 @@ function removeCategory(c: DeviceCategory) {
         margin-top: 8px;
         border: 2px solid transparent;
         border-radius: 8px;
+        width: 100%;
 
         background: $darkgray900;
 
@@ -158,11 +175,19 @@ function removeCategory(c: DeviceCategory) {
             }
         }
 
+        &_controll {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+        }
+
         &_centerbox {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
             align-items: start;
+            width: 100%;
 
             width: fit-content;
         }

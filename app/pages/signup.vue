@@ -24,10 +24,12 @@
 
 <script setup lang="ts">
 import { useToastManager } from '~/composables/toastManager';
+import { useStore } from '~/store';
 import { ToastMode } from '~~/types/toast';
 
 const router = useRouter();
 const { showToast } = useToastManager();
+const store = useStore();
 
 const username = ref<string>();
 const password = ref<string>();
@@ -50,6 +52,8 @@ async function signup() {
                 email: email.value,
             }),
         });
+
+        void store.fetchMe();
         if (response.redirect) {
             router.push(response.redirect);
         }
