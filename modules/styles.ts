@@ -14,9 +14,9 @@ function colorToRgb(hex: string): [r: number, g: number, b: number] | null {
     if (!result) throw new Error(`Failed to convert color ${ hex } from hex to rgb`);
 
     return [
-        parseInt(result[1], 16),
-        parseInt(result[2], 16),
-        parseInt(result[3], 16),
+        parseInt(result[1]!, 16),
+        parseInt(result[2]!, 16),
+        parseInt(result[3]!, 16),
     ];
 }
 

@@ -36,10 +36,10 @@
             </div>
             <div class="selector_input_wrapper">
                 <button
-                    type="button"
                     class="selector_toggle"
-                    @mousedown.prevent
+                    type="button"
                     @click.stop="toggleDropdown"
+                    @mousedown.prevent
                 >
                     <icon
                         class="selector_icon"

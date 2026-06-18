@@ -11,7 +11,7 @@
                 :alt="title"
                 class="home-image-placeholder_img"
                 :src="image"
-            />
+            >
             <div
                 v-else
                 class="home-image-placeholder_visual"
@@ -28,7 +28,6 @@
 </template>
 
 <script setup lang="ts">
-
 defineProps<{
     label: string;
     title: string;
@@ -60,18 +59,19 @@ defineProps<{
         }
 
         &::after {
+            pointer-events: none;
             content: '';
 
-            pointer-events: none;
             position: absolute;
-            inset: 0;
             z-index: 0;
+            inset: 0;
+
             border-radius: inherit;
 
+            opacity: 0.9;
             background:
                 radial-gradient(120px 24px at 7% 0%, varToRgba(info300, 0.34), transparent 72%),
                 radial-gradient(116px 20px at 92% 100%, varToRgba(primary300, 0.3), transparent 72%);
-            opacity: 0.9;
         }
 
         > * {
@@ -104,8 +104,8 @@ defineProps<{
 
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.04em;
         color: $lightgray0;
+        letter-spacing: 0.04em;
 
         background: varToRgba(info700, 0.3);
     }
@@ -115,6 +115,7 @@ defineProps<{
         z-index: 1;
 
         display: block;
+
         width: calc(100% + 28px);
         margin: 10px -14px -14px;
         border-radius: 0 0 14px 14px;
@@ -159,8 +160,8 @@ defineProps<{
 
     &_caption {
         margin: 0;
-        color: $lightgray300;
         line-height: 1.45;
+        color: $lightgray300;
     }
 }
 </style>

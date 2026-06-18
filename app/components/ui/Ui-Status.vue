@@ -38,15 +38,15 @@ const colorMap: Map<StatusValue, string> = new Map([
     [RepairStatus.IN_OUTGOING, colorsList.primary600],
     [RepairStatus.ON_THE_WAY_TO_CUSTOMER, colorsList.primary500],
     [RepairStatus.DELIVERED, colorsList.success600],
-    [RepairStatus.ARCHIVED, colorsList.lightGray300],
+    [RepairStatus.ARCHIVED, colorsList.lightgray300],
 ]);
 
 const styleColor = computed(() => {
     if (!props.status) {
-        return colorsList.lightGray300;
+        return colorsList.lightgray300;
     }
 
-    return colorMap.get(props.status) ?? colorsList.lightGray300;
+    return colorMap.get(props.status) ?? colorsList.lightgray300;
 });
 </script>
 

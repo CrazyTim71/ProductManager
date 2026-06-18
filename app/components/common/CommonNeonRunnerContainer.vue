@@ -55,21 +55,25 @@ const styleVars = computed(() => ({
     '--runner-bright': toneStyles[props.tone].bright,
     '--runner-radius': props.radius,
 }));
+
+defineSlots<{
+    default: () => any;
+}>();
 </script>
 
 <style lang="scss">
 /* @property must be global — not scoped — for animated conic-gradient to work */
 @property --runner-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
     inherits: false;
+    initial-value: 0deg;
+    syntax: '<angle>';
 }
 </style>
 
 <style scoped lang="scss">
 .common-neon-runner-container {
-    position: relative;
     isolation: isolate;
+    position: relative;
 
     display: flex;
     flex-direction: column;
@@ -84,20 +88,21 @@ const styleVars = computed(() => ({
 
     /* Static dim border so the container has an edge even when the runner is on the other side */
     &::after {
+        pointer-events: none;
         content: '';
 
-        pointer-events: none;
         position: absolute;
         inset: 0;
+
         padding: 1px;
         border-radius: inherit;
 
         background: color-mix(in srgb, var(--runner-mid) 22%, transparent);
 
-        -webkit-mask:
+        mask:
             linear-gradient(#000 0 0) content-box,
             linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
+        mask-composite: xor;
         mask-composite: exclude;
     }
 
@@ -107,11 +112,12 @@ const styleVars = computed(() => ({
      * so the bright arc travels along the border ring without any spinning-box artefact.
      */
     &::before {
+        pointer-events: none;
         content: '';
 
-        pointer-events: none;
         position: absolute;
         inset: 0;
+
         padding: 1.5px;
         border-radius: inherit;
 
@@ -126,14 +132,14 @@ const styleVars = computed(() => ({
             var(--runner-mid) 356deg,
             transparent 360deg
         );
+        filter: drop-shadow(0 0 8px color-mix(in srgb, var(--runner-bright) 80%, transparent));
 
-        -webkit-mask:
+        mask:
             linear-gradient(#000 0 0) content-box,
             linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
+        mask-composite: xor;
         mask-composite: exclude;
 
-        filter: drop-shadow(0 0 8px color-mix(in srgb, var(--runner-bright) 80%, transparent));
         animation: common-neon-runner-travel 4.8s linear infinite;
     }
 

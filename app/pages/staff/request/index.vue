@@ -52,8 +52,8 @@ function resolveDisplayStatus(request: RepairRequestWithRelationsType) {
     &-list {
         display: flex;
         flex-direction: column;
-        padding: 16px;
         gap: 16px;
+        padding: 16px;
     }
 }
 </style>

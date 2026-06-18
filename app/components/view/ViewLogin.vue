@@ -194,7 +194,6 @@ function formatTime(value: string) {
 <style scoped lang="scss">
 .login-actions {
     position: relative;
-
     display: flex;
     gap: 12px;
     align-items: center;
@@ -245,6 +244,7 @@ function formatTime(value: string) {
     top: calc(100% + 8px);
     right: 0;
 
+    overflow: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -257,8 +257,6 @@ function formatTime(value: string) {
 
     background: $darkgray900;
 
-    overflow: auto;
-
     &_title {
         font-size: 13px;
         font-weight: 700;
@@ -267,9 +265,9 @@ function formatTime(value: string) {
 
     &_header {
         display: flex;
-        justify-content: space-between;
         gap: 8px;
         align-items: center;
+        justify-content: space-between;
     }
 
     &_actions {
@@ -300,32 +298,37 @@ function formatTime(value: string) {
 
     &_top {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
         gap: 8px;
+        align-items: center;
+        justify-content: space-between;
     }
 
     &_delete {
         cursor: pointer;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         border: none;
+
         color: $lightgray150;
+
         background: transparent;
     }
 
     &_body {
         font-size: 12px;
         color: $typographyPrimary;
-        white-space: normal;
         word-break: break-word;
+        white-space: normal;
     }
 
     &_meta {
         display: flex;
         gap: 6px;
         align-items: center;
+
         font-size: 11px;
         color: $lightgray300;
     }
@@ -333,9 +336,11 @@ function formatTime(value: string) {
     &_new {
         padding: 0 6px;
         border-radius: 8px;
+
         font-size: 10px;
         font-weight: 700;
         color: $lightgray0;
+
         background: $warning600;
     }
 }

@@ -41,7 +41,7 @@
                     :disabled="isJoining || isSending"
                     :input-attrs="{ rows: 3 }"
                     placeholder="Nachricht schreiben..."
-                    v-on:keyup.enter="sendMessage()"
+                    @keyup.enter="sendMessage()"
                 />
                 <ui-button
                     :disabled="!canSend"
@@ -206,21 +206,20 @@ function formatTimestamp(value: string) {
         &--system {
             align-self: center;
             max-width: 100%;
-            background: $darkgray700;
             border: 1px solid $lightgray400;
+            background: $darkgray700;
         }
 
         &-meta {
             display: flex;
             justify-content: space-between;
-
             font-size: 12px;
             color: $lightgray400;
         }
 
         &-content {
-            white-space: pre-wrap;
             word-break: break-word;
+            white-space: pre-wrap;
         }
     }
 

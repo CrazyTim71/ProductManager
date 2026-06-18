@@ -23,7 +23,6 @@
 </template>
 
 <script setup lang="ts">
-
 defineProps<{
     title: string;
     description: string;
@@ -35,8 +34,8 @@ defineProps<{
 <style scoped lang="scss">
 .home-feature-card {
     position: relative;
-    overflow: hidden;
 
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -54,17 +53,18 @@ defineProps<{
     }
 
     &::after {
+        pointer-events: none;
         content: '';
 
-        pointer-events: none;
         position: absolute;
         inset: 0;
+
         border-radius: inherit;
 
+        opacity: 0.8;
         background:
             radial-gradient(130px 26px at 6% 0%, varToRgba(info300, 0.36), transparent 72%),
             radial-gradient(120px 24px at 93% 100%, varToRgba(primary300, 0.28), transparent 72%);
-        opacity: 0.8;
     }
 
     > * {
@@ -92,8 +92,8 @@ defineProps<{
         width: 28px;
         height: 28px;
 
-        color: $info300;
         font-size: 22px;
+        color: $info300;
     }
 
     &_title {
@@ -104,8 +104,8 @@ defineProps<{
 
     &_description {
         margin: 0;
-        color: $lightgray200;
         line-height: 1.5;
+        color: $lightgray200;
     }
 
     &_list {

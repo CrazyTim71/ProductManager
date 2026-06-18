@@ -60,8 +60,8 @@
             <common-neon-runner-container
                 as="section"
                 class="landing_section landing_section--features"
-                tone="primary"
                 data-reveal
+                tone="primary"
             >
                 <h3 class="landing_section-title">Funktionen auf einen Blick</h3>
                 <p class="landing_section-subtitle">
@@ -82,11 +82,11 @@
             <common-neon-runner-container
                 as="section"
                 class="landing_section"
-                tone="secondary"
                 data-reveal
+                tone="secondary"
             >
                 <h3 class="landing_section-title">Produktansichten</h3>
-             
+
                 <div class="landing_preview-grid">
                     <home-image-placeholder
                         v-for="preview in previews"
@@ -102,8 +102,8 @@
             <common-neon-runner-container
                 as="section"
                 class="landing_section landing_section--cta"
-                tone="warning"
                 data-reveal
+                tone="warning"
             >
                 <h3 class="landing_section-title">Bereit für den nächsten Auftrag?</h3>
                 <p class="landing_section-subtitle">
@@ -243,8 +243,8 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .landing {
-    position: relative;
     isolation: isolate;
+    position: relative;
 
     display: flex;
     flex-direction: column;
@@ -254,7 +254,6 @@ onMounted(() => {
     max-width: 90vw;
     margin: 0 auto;
 
-   
 
     &_background {
         pointer-events: none;
@@ -305,10 +304,10 @@ onMounted(() => {
     }
 
     &_hero {
-        opacity: 1;
         display: flex;
         flex-direction: column;
         gap: 14px;
+        opacity: 1;
     }
 
     &_section {
@@ -329,14 +328,15 @@ onMounted(() => {
         border-radius: 999px;
 
         font-size: 12px;
-        letter-spacing: 0.04em;
         color: $lightgray0;
+        letter-spacing: 0.04em;
 
         background: linear-gradient(140deg, varToRgba(info700, 0.5), varToRgba(primary500, 0.3));
     }
 
     &_title {
         margin: 0;
+
         font-size: 42px;
         line-height: 1.1;
         color: $lightgray0;
@@ -384,8 +384,8 @@ onMounted(() => {
 
     &_section-subtitle {
         margin: 0;
-        color: $lightgray300;
         line-height: 1.55;
+        color: $lightgray300;
     }
 
     &_feature-grid,
@@ -427,13 +427,13 @@ onMounted(() => {
 
 @keyframes neon-corner-pulse {
     from {
-        opacity: 0.45;
         transform: scale(1);
+        opacity: 0.45;
     }
 
     to {
-        opacity: 0.95;
         transform: scale(1.02);
+        opacity: 0.95;
     }
 }
 </style>

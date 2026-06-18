@@ -15,7 +15,7 @@
             <ui-button
                 aria-label="Close"
                 class="toast-close"
-                type="button"
+                tag="button"
                 @click="emit('close')"
             >
                 <icon name="material-symbols:x-circle-outline"/>
