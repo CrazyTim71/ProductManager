@@ -6,6 +6,8 @@ bun install
 bun run prisma generate
 bun run prisma migrate deploy
 
+bun db-seed
+
 echo "Starting Prisma Studio..."
 bun run prisma studio --port 51212 --browser none &
 

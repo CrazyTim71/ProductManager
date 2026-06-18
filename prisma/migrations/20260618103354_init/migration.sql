@@ -286,6 +286,7 @@ CREATE TABLE "Notification" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "requestId" TEXT,
+    "messageChannelId" TEXT,
     "status" "NotificationStatus" NOT NULL DEFAULT 'PENDING',
     "subject" TEXT NOT NULL,
     "body" TEXT NOT NULL,
@@ -396,6 +397,9 @@ CREATE INDEX "Notification_userId_status_idx" ON "Notification"("userId", "statu
 -- CreateIndex
 CREATE INDEX "Notification_requestId_createdAt_idx" ON "Notification"("requestId", "createdAt");
 
+-- CreateIndex
+CREATE INDEX "Notification_messageChannelId_createdAt_idx" ON "Notification"("messageChannelId", "createdAt");
+
 -- AddForeignKey
 ALTER TABLE "Device" ADD CONSTRAINT "Device_deviceBrandId_fkey" FOREIGN KEY ("deviceBrandId") REFERENCES "DeviceBrand"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -491,3 +495,6 @@ ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_requestId_fkey" FOREIGN KEY ("requestId") REFERENCES "RepairRequest"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_messageChannelId_fkey" FOREIGN KEY ("messageChannelId") REFERENCES "MessageChannel"("id") ON DELETE SET NULL ON UPDATE CASCADE;
