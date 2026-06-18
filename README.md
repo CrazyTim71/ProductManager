@@ -34,13 +34,20 @@ Danach folgen Versand, Wareneingang, interne Sichtung, Ersatzteilbestellung, Rep
 
 - [Detaillierter Ablauf einer Reparaturanfrage](docs/repair-flow.md)
 - [Funktionsübersicht und geplante Module](docs/features.md)
-- [Screenshot-Platzhalter und geplante UI-Ansichten](docs/screenshots.md)
 
-## Platzhalter für Screenshots
+## Screenshots
 
-- [Staff-Dashboard](docs/screenshots.md#staff-dashboard)
-- [Statistik-Ansicht](docs/screenshots.md#statistik-ansicht)
-- [Anfrage-Detail mit Timeline und Chat](docs/screenshots.md#anfrage-detail-mit-timeline-und-chat)
+### Staff-Sicht: Reparaturanfrage
+
+![Staff Reparaturanfrage](public/docs/repair-request.png)
+
+### Kunden-Sicht: Chat
+
+![Kunden Chat](public/docs/chat.png)
+
+### Kunden-Sicht: Reparatur-Graph
+
+![Reparatur Graph](public/docs/graph.png)
 
 ## Entwicklung
 
