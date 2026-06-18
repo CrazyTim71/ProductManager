@@ -4,10 +4,11 @@ import { setAuthCookie, removeAuthCookie, authCookieName } from '~~/server/utils
 import type { User } from '@prisma/client';
 import { createToken } from '../crypto';
 import type { UserSession } from '~~/types/data';
-import type { Socket, DefaultEventsMap } from 'socket.io';
+import type { Socket } from 'socket.io';
 import { getRedisSync } from '~~/server/utils/backend/redis';
 import { UserRole } from '@prisma/client';
 import cookie from 'cookie';
+import type { ClientToServerEvents, ServerToClientEvents, SocketData } from '~~/types/socket';
 
 export const userSessionAvailableMS = 5 * 24 * 60 * 60 * 1000;
 
@@ -128,22 +129,26 @@ export async function requireAuth(event: H3Event) {
     }
 }
 
-export async function parseSocketCookie(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>): Promise<H3EventContext['user'] | undefined> {
-    const cookies = socket.handshake.headers.cookie;
-    const parsedCookies = cookies ? cookie.parse(cookies) : {};
+export async function parseSocketCookie(
+    socket: Socket<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>,
+): Promise<H3EventContext['user'] | undefined> {
+    const cookieHeader = socket.handshake.headers.cookie;
 
+    if (!cookieHeader || Array.isArray(cookieHeader) || cookieHeader.length > 4096) {
+        return undefined;
+    }
+
+    const parsedCookies = cookie.parse(cookieHeader);
     const token = parsedCookies[authCookieName];
 
-    if (!token) {
-        throw new Error('Auth token missing in cookie');
+    if (!token || token.length > 4096) {
+        return undefined;
     }
 
     try {
-        const user = await checkJwt(token);
-        return user;
+        return await checkJwt(token);
     }
     catch {
-        // invalid token
         return undefined;
     }
 }

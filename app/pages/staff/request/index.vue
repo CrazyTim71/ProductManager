@@ -6,7 +6,7 @@
             class="req"
         >
             <h2>{{ r.subject }} {{ r.queuePosition ? `(${ r.queuePosition })` : '' }}</h2>
-            <ui-status :status="r.status"/>
+            <ui-status :status="resolveDisplayStatus(r)"/>
             <div class="req-details">
                 {{ r.deviceName }} / {{ r.deviceModel }} / {{ r.deviceBrand }}
             </div>
@@ -20,9 +20,22 @@
 </template>
 
 <script lang="ts" setup>
+import { RepairRequestStatus } from '@prisma/client';
+
 import type { RepairRequestWithRelationsType } from '~~/types/req';
 
 const { data: req } = useFetch<RepairRequestWithRelationsType[]>('/api/v1/staff/request');
+
+function resolveDisplayStatus(request: RepairRequestWithRelationsType) {
+    const firstWorkItem = [...(request.workItems ?? [])].sort((left, right) => left.orderIndex - right.orderIndex)[0];
+    const firstWorkItemCompleted = firstWorkItem?.status === 'DONE';
+
+    if (request.status === RepairRequestStatus.ACCEPTED && firstWorkItemCompleted) {
+        return request.statusHistory?.[0]?.status ?? request.status;
+    }
+
+    return request.status;
+}
 </script>
 
 <style lang="scss" scoped>

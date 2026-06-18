@@ -1,20 +1,27 @@
 # ProductManager
 
-Modernes Reparatur- und Auftragsmanagement für Werkstätten, Service-Teams und Ersatzteilprozesse. Das Projekt ist noch sehr früh in der Entwicklung, deshalb sind einige Bereiche bewusst nur als Platzhalter beschrieben.
+Modernes Reparatur- und Auftragsmanagement für Werkstätten, Service-Teams und Ersatzteilprozesse.
 
 ## Überblick
 
 ProductManager soll den kompletten Weg einer Reparaturanfrage abbilden: vom ersten Kunden-Login über die Anfrage, die interne Sichtung und die Kommunikation bis hin zur Statusverfolgung, Ersatzteilverwaltung und Auswertung von Statistiken. Der Fokus liegt auf einem klaren Ablauf, nachvollziehbaren Statuswechseln und einer sauberen Historie pro Gerät.
 
-## Was das System später können soll
+## Aktueller Funktionsstand
+
+- Reparaturanfragen mit Kunden- und Staff-Sichten
+- Arbeitsschritte (inklusive Statuswechseln wie PENDING, IN_PROGRESS, DONE)
+- Chat pro Anfrage via Socket.IO
+- Benachrichtigungen mit Badge, Mark-All-Read und Delete-Read
+- Statushistorie für Reparaturphasen
+- Archiv- und Verlaufssichten für abgeschlossene Aufträge
+
+## Was das System später zusätzlich können soll
 
 - 📬 E-Mail-Updates zu jedem wichtigen Statuswechsel des Pakets und der Reparatur
-- 🔁 Frei konfigurierbare Reparatur- und Versandstatus wie „Auf dem Weg“, „Im Lager“, „in Reparatur“, „wartet auf Ersatzteile“ oder „auf dem Weg zu dir“
-- 📝 Erfassung von Gerätedaten, Fehlerbeschreibung, bereits getesteten Schritten, Trackingnummer und weiteren Notizen
 - 💸 Anzeige von gespartem Wert im Vergleich zum Neukauf
 - 🕒 Timeline mit der Zeit, die ein Auftrag in jedem Status verbracht hat
 - 📦 Warteschlange mit geschätzter Restzeit auf Basis der aktuellen Auslastung
-- 💬 Rückfragen per Chat oder E-Mail, wenn Informationen fehlen oder unklar sind
+- 💬 Rückfragen per E-Mail, wenn Informationen fehlen oder unklar sind
 - 📊 Statistik- und Graph-Ansichten für Gerätetypen, Reparaturarten und Team-Auswertung
 
 ## Beispielablauf
@@ -30,8 +37,6 @@ Danach folgen Versand, Wareneingang, interne Sichtung, Ersatzteilbestellung, Rep
 - [Screenshot-Platzhalter und geplante UI-Ansichten](docs/screenshots.md)
 
 ## Platzhalter für Screenshots
-
-Die folgenden Ansichten sind aktuell nur als Platzhalter dokumentiert und werden später mit echten Screenshots ersetzt:
 
 - [Staff-Dashboard](docs/screenshots.md#staff-dashboard)
 - [Statistik-Ansicht](docs/screenshots.md#statistik-ansicht)
@@ -75,6 +80,8 @@ bun run dev
 - Prisma
 - PostgreSQL
 - Sass / SCSS
+- Redis
+- Socket.io
 
 ## Status
 

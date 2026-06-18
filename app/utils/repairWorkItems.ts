@@ -30,7 +30,7 @@ export interface RepairWorkItemDraft {
     orderIndex: number;
     assignedStaffId: string | null;
     laborMinutes: number | null;
-    completed: boolean;
+    status: 'BLOCKED' | 'DONE' | 'IN_PROGRESS' | 'PENDING';
 }
 
 const REPAIR_WORK_ITEM_PHASE_DEFINITIONS = [

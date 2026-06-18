@@ -3,13 +3,37 @@
         v-if="repairReq && repairReq.customer"
         :title="`Reperaturauftrag von ${ repairReq?.customer.displayName }`"
     >
-        <ui-status :status="repairReq?.status"/>
+        <ui-status :status="displayStatus"/>
         <div class="request-container">
             <div class="request-customer">
                 <h2>Customer details</h2>
                 {{ repairReq?.customer.displayName }} ({{ repairReq?.customer.username }}) /
                 {{ repairReq?.customer.email }}
-                <ui-button>Chat (WIP)</ui-button>
+                <ui-button @click="openChat()">{{ chatButtonText }}</ui-button>
+                <div
+                    v-if="allWorkItemsDone"
+                    class="request-state-actions"
+                >
+                    <ui-button @click="setRequestState('COMPLETED')">Mark Complete</ui-button>
+                    <ui-button
+                        primary-color="error600"
+                        @click="setRequestState('REJECTED')"
+                    >
+                        Reject
+                    </ui-button>
+                    <ui-button
+                        primary-color="error600"
+                        @click="setRequestState('CANCELLED')"
+                    >
+                        Cancel
+                    </ui-button>
+                </div>
+                <ui-button
+                    v-if="canArchive"
+                    @click="archiveRequest()"
+                >
+                    Archive Request
+                </ui-button>
             </div>
             <div class="request-params">
                 <h2>Customer Notes</h2>
@@ -75,11 +99,22 @@
                     <ui-labeled-text :value="repairDevice?.device?.name">Name</ui-labeled-text>
                     <ui-labeled-text :value="repairDevice?.device?.deviceBrand.name">Brand</ui-labeled-text>
                     <ui-labeled-text :value="(repairDevice?.device?.purchaseValue ?? '') as string">Neukaufwert</ui-labeled-text>
+                    <h3>Repair Status</h3>
+                    <ui-status :status="effectiveRepairStatus ?? repairReq.status"/>
+                    <div class="request-device-status-actions">
+                        <ui-button
+                            v-for="statusAction in repairStatusActions"
+                            :key="statusAction"
+                            @click="setRepairStatus(statusAction)"
+                        >
+                            {{ statusAction }}
+                        </ui-button>
+                    </div>
                 </div>
             </div>
             <div class="request-steps">
                 <repair-step-graph
-                    :editable="true"
+                    editable
                     :request="repairReq"
                 />
             </div>
@@ -88,6 +123,8 @@
 </template>
 
 <script lang="ts" setup>
+import { RepairRequestStatus, RepairStatus } from '@prisma/client';
+
 import type { Device } from '@prisma/client';
 import LabeledText from '~/components/ui/LabeledText.vue';
 import type { RepairDeviceWithRelationsType, RepairRequestWithRelationsType } from '~~/types/req';
@@ -104,6 +141,68 @@ const repairDevice = ref<RepairDeviceWithRelationsType | null>(null);
 
 const { data: repairReq, refresh: refreshRepairReq } = useFetch<RepairRequestWithRelationsType>(`/api/v1/staff/request/${ id }`);
 const { data: devices } = useFetch<Device[]>('/api/v1/staff/device');
+const repairStatusOverride = ref<RepairStatus | null>(null);
+
+const latestRepairStatus = computed(() => repairReq.value?.statusHistory?.[0]?.status ?? null);
+const effectiveRepairStatus = computed(() => repairStatusOverride.value ?? latestRepairStatus.value);
+const isFirstWorkItemCompleted = computed(() => {
+    const workItems = repairReq.value?.workItems ?? [];
+
+    if (workItems.length === 0) {
+        return false;
+    }
+
+    const firstWorkItem = [...workItems].sort((left, right) => left.orderIndex - right.orderIndex)[0];
+    return firstWorkItem?.status === 'DONE';
+});
+const displayStatus = computed(() => {
+    if (!repairReq.value) {
+        return RepairRequestStatus.WAITING_FOR_REVIEW;
+    }
+
+    if (repairReq.value.status === RepairRequestStatus.ACCEPTED && effectiveRepairStatus.value && isFirstWorkItemCompleted.value) {
+        return effectiveRepairStatus.value;
+    }
+
+    return repairReq.value.status;
+});
+const allWorkItemsDone = computed(() => {
+    if (!repairReq.value?.workItems || repairReq.value.workItems.length === 0) {
+        return false;
+    }
+
+    return repairReq.value.workItems.every(workItem => workItem.status === 'DONE');
+});
+const isArchived = computed(() => repairReq.value?.statusHistory?.some(item => item.status === RepairStatus.ARCHIVED) ?? false);
+const canArchive = computed(() => repairReq.value?.status === RepairRequestStatus.COMPLETED && !isArchived.value);
+const repairStatusActions = computed<RepairStatus[]>(() => {
+    const actions: RepairStatus[] = [
+        RepairStatus.RECEIVED,
+        RepairStatus.IN_DIAGNOSIS,
+        RepairStatus.WAITING_FOR_PARTS,
+        RepairStatus.IN_REPAIR,
+        RepairStatus.IN_QA,
+        RepairStatus.IN_OUTGOING,
+    ];
+
+    if (effectiveRepairStatus.value === RepairStatus.IN_OUTGOING) {
+        actions.push(RepairStatus.ON_THE_WAY_TO_CUSTOMER);
+    }
+
+    if (effectiveRepairStatus.value === RepairStatus.ON_THE_WAY_TO_CUSTOMER) {
+        actions.push(RepairStatus.DELIVERED);
+    }
+
+    return actions.filter(status => status !== effectiveRepairStatus.value);
+});
+
+const chatButtonText = computed(() => {
+    if (repairReq.value?.status === RepairRequestStatus.WAITING_FOR_REVIEW) {
+        return 'Frag den Customer';
+    }
+
+    return 'Chat';
+});
 
 async function loadRepairDevice() {
     if (!repairReq.value?.device?.id) {
@@ -149,6 +248,84 @@ async function saveRepaiDevice() {
             notes: notes.value,
         },
     });
+}
+
+async function openChat() {
+    if (!repairReq.value) {
+        return;
+    }
+
+    await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/chat`, {
+        method: 'POST',
+    });
+
+    await navigateTo(`/chat/room/${ repairReq.value.id }`);
+}
+
+async function setRequestState(status: RepairRequestStatus.CANCELLED | RepairRequestStatus.REJECTED | RepairRequestStatus.COMPLETED) {
+    if (!repairReq.value) {
+        return;
+    }
+
+    const previousStatus = repairReq.value.status;
+    repairReq.value.status = status;
+
+    try {
+        await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/state`, {
+            method: 'PUT',
+            body: {
+                status,
+            },
+        });
+    }
+    catch {
+        repairReq.value.status = previousStatus;
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'State update failed',
+        });
+    }
+
+    await refreshRepairReq();
+}
+
+async function setRepairStatus(status: RepairStatus) {
+    if (!repairReq.value) {
+        return;
+    }
+
+    repairStatusOverride.value = status;
+
+    try {
+        await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/repair-status`, {
+            method: 'PUT',
+            body: {
+                status,
+            },
+        });
+    }
+    catch {
+        repairStatusOverride.value = null;
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'Repair status update failed',
+        });
+    }
+
+    await refreshRepairReq();
+    repairStatusOverride.value = null;
+}
+
+async function archiveRequest() {
+    if (!repairReq.value) {
+        return;
+    }
+
+    await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/archive`, {
+        method: 'POST',
+    });
+
+    await refreshRepairReq();
 }
 </script>
 
@@ -214,6 +391,18 @@ async function saveRepaiDevice() {
         border-radius: 8px;
 
         background: $darkgray800;
+    }
+
+    &-state-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    &-device-status-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     &-params {

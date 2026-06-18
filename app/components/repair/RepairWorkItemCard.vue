@@ -34,7 +34,12 @@
         >
             <ui-button @click="emit('edit')">Edit</ui-button>
             <ui-button
-                @click="emit('toggle')"
+                @click="emit('toggleInProgress')"
+            >
+                {{ item.status === 'IN_PROGRESS' ? 'Set Pending' : 'Set In Progress' }}
+            </ui-button>
+            <ui-button
+                @click="emit('toggleDone')"
             >
                 {{ item.status === 'DONE' ? 'Reopen' : 'Complete' }}
             </ui-button>
@@ -70,7 +75,10 @@ const emit = defineEmits({
     edit() {
         return true;
     },
-    toggle() {
+    toggleInProgress() {
+        return true;
+    },
+    toggleDone() {
         return true;
     },
 });

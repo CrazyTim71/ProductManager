@@ -219,6 +219,7 @@ model MessageChannel {
   createdBy    User?                       @relation(fields: [createdById], references: [id], onDelete: SetNull)
   messages     RepairMessage[]
   participants MessageChannelParticipant[]
+  notifications Notification[]
 
   @@index([createdById, createdAt])
 }
@@ -386,6 +387,7 @@ model Notification {
   id           String             @id @default(cuid())
   userId       String
   requestId    String?
+  messageChannelId String?
   status       NotificationStatus @default(PENDING)
   subject      String
   body         String
@@ -396,7 +398,9 @@ model Notification {
 
   user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   request RepairRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  messageChannel MessageChannel? @relation(fields: [messageChannelId], references: [id], onDelete: SetNull)
 
   @@index([userId, status])
   @@index([requestId, createdAt])
+  @@index([messageChannelId, createdAt])
 }

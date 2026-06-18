@@ -63,7 +63,8 @@
                     :item="item"
                     @delete="deleteWorkItem(item)"
                     @edit="openEdit(item)"
-                    @toggle="toggleWorkItemCompletion(item)"
+                    @toggleDone="toggleWorkItemCompletion(item)"
+                    @toggleInProgress="toggleWorkItemInProgress(item)"
                 />
             </template>
         </repair-step-phase>
@@ -160,8 +161,8 @@ function buildPayload(draft: RepairWorkItemDraft) {
         workItemTypeId,
         assignedStaffId,
         laborMinutes: draft.laborMinutes,
-        status: draft.completed ? 'DONE' : (assignedStaffId ? 'IN_PROGRESS' : 'PENDING'),
-        completedAt: draft.completed ? new Date().toISOString() : null,
+        status: draft.status,
+        completedAt: draft.status === 'DONE' ? new Date().toISOString() : null,
     };
 }
 
@@ -213,8 +214,28 @@ async function toggleWorkItemCompletion(item: RepairWorkItemWithRelationsType) {
             workItemTypeId: item.workItemType.id,
             assignedStaffId: item.assignedStaff?.id ?? null,
             laborMinutes: item.laborMinutes ?? null,
-            status: completed ? 'DONE' : (item.assignedStaff ? 'IN_PROGRESS' : 'PENDING'),
+            status: completed ? 'DONE' : 'PENDING',
             completedAt: completed ? new Date().toISOString() : null,
+        },
+        method: 'PUT',
+    });
+
+    upsertLocalWorkItem(response.data);
+}
+
+async function toggleWorkItemInProgress(item: RepairWorkItemWithRelationsType) {
+    const inProgress = item.status !== 'IN_PROGRESS';
+
+    const response = await $fetch<{ data: RepairWorkItemWithRelationsType }>(`/api/v1/staff/request/${ props.request.id }/steps/${ item.id }`, {
+        body: {
+            title: item.title,
+            description: item.description ?? '',
+            orderIndex: item.orderIndex,
+            workItemTypeId: item.workItemType.id,
+            assignedStaffId: item.assignedStaff?.id ?? null,
+            laborMinutes: item.laborMinutes ?? null,
+            status: inProgress ? 'IN_PROGRESS' : 'PENDING',
+            completedAt: null,
         },
         method: 'PUT',
     });

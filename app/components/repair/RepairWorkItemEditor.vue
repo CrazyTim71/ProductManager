@@ -46,11 +46,21 @@
                 <ui-input-number v-model="form.laborMinutes">Labor minutes</ui-input-number>
             </div>
 
-            <ui-text-area v-model="form.description">Description</ui-text-area>
-
-            <div class="work-item-editor-checkbox">
-                <ui-checkbox v-model="form.completed">Completed</ui-checkbox>
+            <div class="work-item-editor-status">
+                <div class="work-item-editor-status_label">Status</div>
+                <div class="work-item-editor-status_buttons">
+                    <ui-button
+                        v-for="statusOption in statusOptions"
+                        :key="statusOption.id"
+                        :type="statusOption.id === form.status ? 'primary' : 'secondary'"
+                        @click="form.status = statusOption.id"
+                    >
+                        {{ statusOption.name }}
+                    </ui-button>
+                </div>
             </div>
+
+            <ui-text-area v-model="form.description">Description</ui-text-area>
         </div>
     </common-popup>
 </template>
@@ -102,11 +112,17 @@ const form = reactive<RepairWorkItemDraft>({
     orderIndex: 0,
     assignedStaffId: null,
     laborMinutes: null,
-    completed: false,
+    status: 'PENDING',
 });
 
 const selectedWorkItemType = ref<WorkItemTypeOption[]>([]);
 const selectedStaff = ref<SelectableEntry[]>([]);
+const statusOptions: Array<{ id: RepairWorkItemDraft['status']; name: string }> = [
+    { id: 'PENDING', name: 'Pending' },
+    { id: 'IN_PROGRESS', name: 'In Progress' },
+    { id: 'BLOCKED', name: 'Blocked' },
+    { id: 'DONE', name: 'Done' },
+];
 
 const propsItem = toRef(() => props.item);
 const propsDefaultOrderIndex = toRef(() => props.defaultOrderIndex);
@@ -131,7 +147,7 @@ watch([propsItem, propsDefaultOrderIndex, () => props.isVisible], () => {
         form.description = props.item.description ?? '';
         form.orderIndex = props.item.orderIndex;
         form.laborMinutes = props.item.laborMinutes ?? null;
-        form.completed = props.item.status === 'DONE';
+        form.status = props.item.status;
         selectedWorkItemType.value = [
             {
                 id: props.item.workItemType.id,
@@ -155,7 +171,7 @@ watch([propsItem, propsDefaultOrderIndex, () => props.isVisible], () => {
         form.description = '';
         form.orderIndex = props.defaultOrderIndex;
         form.laborMinutes = null;
-        form.completed = false;
+        form.status = 'PENDING';
         form.workItemTypeId = null;
         form.assignedStaffId = null;
         selectedWorkItemType.value = [];
@@ -177,6 +193,7 @@ function submit() {
     if (!props.item) {
         applySelectedWorkItemTypeDefaults();
     }
+
     form.assignedStaffId = selectedStaff.value[0]?.id ?? null;
 
     emit('save', { ...form });
@@ -207,6 +224,24 @@ function submit() {
         display: flex;
         align-items: center;
         padding-top: 8px;
+    }
+
+    &-status {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        &_label {
+            font-size: 13px;
+            font-weight: 600;
+            color: $typographyPrimary;
+        }
+
+        &_buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
     }
 }
 </style>

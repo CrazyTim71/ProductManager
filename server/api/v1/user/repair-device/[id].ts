@@ -1,5 +1,4 @@
 import { crud } from '../../../../utils/backend/crud';
-import { repairDeviceCreateSchema } from '~~/server/utils/backend/validation';
 import { RepairDeviceWithRelations } from '~~/types/req';
 
 export default crud(prisma.repairDevice, {

@@ -25,6 +25,7 @@ import ViewLogin from '~/components/view/ViewLogin.vue';
 import ViewVersion from '~/components/view/ViewVersion.vue';
 import ChangelogPopup from '~/components/common/CommonChangelogPopup.vue';
 import { colorsList } from '#imports';
+import { useSocketClient } from '~/composables/socketClient';
 import { useStore } from '~/store';
 
 defineSlots<{ default: () => any }>();
@@ -32,6 +33,7 @@ defineSlots<{ default: () => any }>();
 const store = useStore();
 
 onMounted(() => {
+    useSocketClient();
     void store.fetchMe();
 });
 

@@ -3,7 +3,7 @@
         v-if="status"
         class="status"
         :style="{
-            '--status-color': colorMap.get(status) as string,
+            '--status-color': styleColor,
         }"
     >
         {{ status }}
@@ -11,23 +11,43 @@
 </template>
 
 <script lang="ts" setup>
-import { RepairRequestStatus } from '@prisma/client';
+import { RepairRequestStatus, RepairStatus } from '@prisma/client';
 import type { PropType } from 'vue';
 
-defineProps({
+type StatusValue = RepairRequestStatus | RepairStatus;
+
+const props = defineProps({
     status: {
-        type: String as PropType<RepairRequestStatus>,
+        type: String as PropType<StatusValue>,
     },
 });
 
-const colorMap: Map<RepairRequestStatus, string> = new Map([
+const colorMap: Map<StatusValue, string> = new Map([
     [RepairRequestStatus.ACCEPTED, colorsList.primary600],
     [RepairRequestStatus.CANCELLED, colorsList.error600],
     [RepairRequestStatus.COMPLETED, colorsList.success600],
     [RepairRequestStatus.REJECTED, colorsList.error600],
     [RepairRequestStatus.WAITING_FOR_RESPONSE, colorsList.warning600],
     [RepairRequestStatus.WAITING_FOR_REVIEW, colorsList.warning600],
+    [RepairStatus.ON_THE_WAY_TO_SHOP, colorsList.warning600],
+    [RepairStatus.RECEIVED, colorsList.primary500],
+    [RepairStatus.IN_DIAGNOSIS, colorsList.warning600],
+    [RepairStatus.WAITING_FOR_PARTS, colorsList.warning600],
+    [RepairStatus.IN_REPAIR, colorsList.primary600],
+    [RepairStatus.IN_QA, colorsList.warning600],
+    [RepairStatus.IN_OUTGOING, colorsList.primary600],
+    [RepairStatus.ON_THE_WAY_TO_CUSTOMER, colorsList.primary500],
+    [RepairStatus.DELIVERED, colorsList.success600],
+    [RepairStatus.ARCHIVED, colorsList.lightGray300],
 ]);
+
+const styleColor = computed(() => {
+    if (!props.status) {
+        return colorsList.lightGray300;
+    }
+
+    return colorMap.get(props.status) ?? colorsList.lightGray300;
+});
 </script>
 
 <style lang="scss" scoped>

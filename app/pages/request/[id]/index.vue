@@ -3,7 +3,7 @@
         v-if="repairReq && repairReq.customer"
         :title="`Reperaturauftrag von ${ repairReq?.customer.displayName }`"
     >
-        <ui-status :status="repairReq?.status"/>
+        <ui-status :status="displayStatus"/>
         <div class="request-container">
             <div class="request-customer">
                 <h2>Assigned Staff</h2>
@@ -13,7 +13,7 @@
                 <template v-else>
                     <h3>Noch niemand</h3>
                 </template>
-                <ui-button>Chat (WIP)</ui-button>
+                <ui-button @click="openChat()">Chat</ui-button>
             </div>
             <div class="request-params">
                 <h2>Customer Notes</h2>
@@ -70,6 +70,8 @@
 </template>
 
 <script lang="ts" setup>
+import { RepairRequestStatus } from '@prisma/client';
+
 import LabeledText from '~/components/ui/LabeledText.vue';
 import type { RepairDeviceWithRelationsType, RepairRequestWithRelationsType } from '~~/types/req';
 
@@ -82,6 +84,27 @@ const notes = ref('');
 const repairDevice = ref<RepairDeviceWithRelationsType | null>(null);
 
 const { data: repairReq } = useFetch<RepairRequestWithRelationsType>(`/api/v1/user/request/${ id }`);
+const isFirstWorkItemCompleted = computed(() => {
+    const workItems = repairReq.value?.workItems ?? [];
+
+    if (workItems.length === 0) {
+        return false;
+    }
+
+    const firstWorkItem = [...workItems].sort((left, right) => left.orderIndex - right.orderIndex)[0];
+    return firstWorkItem?.status === 'DONE';
+});
+const displayStatus = computed(() => {
+    if (!repairReq.value) {
+        return RepairRequestStatus.WAITING_FOR_REVIEW;
+    }
+
+    if (repairReq.value.status === RepairRequestStatus.ACCEPTED && isFirstWorkItemCompleted.value) {
+        return repairReq.value.statusHistory?.[0]?.status ?? repairReq.value.status;
+    }
+
+    return repairReq.value.status;
+});
 
 async function loadRepairDevice() {
     if (!repairReq.value?.device?.id) {
@@ -101,6 +124,14 @@ watch(() => repairReq.value?.device?.id, async () => {
 }, {
     immediate: true,
 });
+
+async function openChat() {
+    if (!repairReq.value) {
+        return;
+    }
+
+    await navigateTo(`/chat/room/${ repairReq.value.id }`);
+}
 </script>
 
 <style lang="scss" scoped>

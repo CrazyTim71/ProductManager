@@ -1,53 +1,57 @@
-import type { SocketSession } from '~~/types/socket';
+import type { Socket, Server } from 'socket.io';
+
 import { parseSocketCookie } from '../utils/auth';
-import type { Socket, Namespace, Server, DefaultEventsMap } from 'socket.io';
-import type { UserSession } from '../../types/data';
-import { socketServer } from '../plugins/socket.io.server';
+import { registerChatSocketHandlers } from './chatHandler';
+import { getUserRoomName } from '~~/server/utils/backend/chat';
+import type {
+    ClientToServerEvents,
+    ServerToClientEvents,
+    SocketData,
+    SocketSession,
+} from '~~/types/socket';
 
-declare module 'socket.io' {
-    interface Socket {
-        user?: UserSession;
-    }
-}
+type AppSocket = Socket<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>;
+type AppServer = Server<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>;
 
-export function initSocket(io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
+export function initSocket(io: AppServer) {
     io.use(checkCookies);
 
     io.on('connection', socket => {
+        socket.data.joinedRequestIds = new Set();
+
+        if (socket.data.user?.userId) {
+            socket.join(getUserRoomName(socket.data.user.userId));
+        }
+
         socket.on('me', () => {
             emitMe(socket);
         });
 
+        registerChatSocketHandlers(io, socket);
         emitMe(socket);
     });
 }
 
-function emitMe(socket: Socket) {
-    const loggedIn = !!socket.user;
+function emitMe(socket: AppSocket) {
+    const loggedIn = !!socket.data.user;
     const data: SocketSession = {
         loggedIn,
-        admin: socket.user?.role === 'ADMIN',
-        username: socket.user?.username ?? '',
-        userid: socket.user?.userId ?? '',
-        staff: socket.user?.role === 'STAFF',
+        admin: socket.data.user?.role === 'ADMIN',
+        username: socket.data.user?.username ?? '',
+        userid: socket.data.user?.userId ?? '',
+        staff: socket.data.user?.role === 'STAFF',
     };
 
     socket.emit('me', data);
 }
 
-function checkCookies(socket: Socket, next: (err?: Error) => void) {
+function checkCookies(socket: AppSocket, next: (err?: Error) => void) {
     parseSocketCookie(socket).then(user => {
-        if (!user) return next();
-        socket.user = user;
-        next();
-    }).catch(err => next());
-}
+        if (!user) {
+            return next();
+        }
 
-function requireAuth(socket: Socket, next: (err?: Error) => void) {
-    if (!socket.user?.userId) {
-        next(new Error('Unauthorized'));
-    }
-    else {
+        socket.data.user = user;
         next();
-    }
+    }).catch(() => next());
 }

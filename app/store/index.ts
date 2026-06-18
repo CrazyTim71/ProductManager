@@ -14,6 +14,7 @@ export const useStore = defineStore('index', {
         isPC: true,
         isPCWide: false,
         scrollbarWidth: 0,
+        notificationUnreadCount: 0,
         viewport: {
             width: 0,
         },
@@ -38,6 +39,9 @@ export const useStore = defineStore('index', {
                 this.toasts.splice(index, 1);
             }
         },
+        setNotificationUnreadCount(count: number) {
+            this.notificationUnreadCount = Math.max(0, count);
+        },
         async fetchMe() {
             try {
                 const data = await $fetch<WebUser>('/api/v1/user/me');
@@ -46,6 +50,7 @@ export const useStore = defineStore('index', {
             }
             catch {
                 this.me = undefined;
+                this.notificationUnreadCount = 0;
             }
         },
     },

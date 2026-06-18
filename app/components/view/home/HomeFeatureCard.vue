@@ -1,0 +1,126 @@
+<template>
+    <article
+        class="home-feature-card"
+        data-reveal
+    >
+        <div class="home-feature-card_icon-wrap">
+            <div class="home-feature-card_icon">
+                <Icon :name="icon"/>
+            </div>
+        </div>
+        <h3 class="home-feature-card_title">{{ title }}</h3>
+        <p class="home-feature-card_description">{{ description }}</p>
+        <ul class="home-feature-card_list">
+            <li
+                v-for="point in points"
+                :key="point"
+                class="home-feature-card_list-item"
+            >
+                {{ point }}
+            </li>
+        </ul>
+    </article>
+</template>
+
+<script setup lang="ts">
+
+defineProps<{
+    title: string;
+    description: string;
+    points: readonly string[];
+    icon: string;
+}>();
+</script>
+
+<style scoped lang="scss">
+.home-feature-card {
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    min-height: 240px;
+    padding: 20px;
+    border: none;
+    border-radius: 14px;
+
+    background: linear-gradient(160deg, varToRgba(darkgray875, 0.95), varToRgba(darkgray950, 0.95));
+    box-shadow: 0 18px 30px -22px varToRgba(info500, 0.55);
+
+    &::before {
+        content: none;
+    }
+
+    &::after {
+        content: '';
+
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+
+        background:
+            radial-gradient(130px 26px at 6% 0%, varToRgba(info300, 0.36), transparent 72%),
+            radial-gradient(120px 24px at 93% 100%, varToRgba(primary300, 0.28), transparent 72%);
+        opacity: 0.8;
+    }
+
+    > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    @include hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 0 1px varToRgba(info300, 0.24), 0 28px 40px -30px varToRgba(info500, 0.7);
+    }
+
+    &_icon-wrap {
+        width: fit-content;
+        padding: 8px;
+        border-radius: 10px;
+        background: varToRgba(info500, 0.1);
+    }
+
+    &_icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 28px;
+        height: 28px;
+
+        color: $info300;
+        font-size: 22px;
+    }
+
+    &_title {
+        margin: 0;
+        font-size: 19px;
+        color: $lightgray0;
+    }
+
+    &_description {
+        margin: 0;
+        color: $lightgray200;
+        line-height: 1.5;
+    }
+
+    &_list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        margin: 4px 0 0;
+        padding-left: 18px;
+
+        color: $lightgray300;
+    }
+
+    &_list-item {
+        line-height: 1.4;
+    }
+}
+</style>

@@ -1,7 +1,7 @@
 import { RepairWorkItemWithRelations } from '~~/types/req';
 import { repairWorkItemCreateSchema } from '~~/server/utils/backend/validation';
 import { createApiError } from '~~/server/utils/apiResponses';
-import { createDefaultWorkItemsForRequest } from '~~/server/utils/backend/workItems';
+import { syncRepairStatusFromDefaultSteps } from '~~/server/utils/backend/repairStatus';
 import { getRouterParam, readBody } from 'h3';
 
 export default defineEventHandler(async event => {
@@ -35,7 +35,6 @@ export default defineEventHandler(async event => {
     if (event.method === 'POST') {
         const body = repairWorkItemCreateSchema.parse(await readBody(event));
         const createdById = event.context.user?.userId ?? null;
-        const completedAt = body.completedAt ? new Date(body.completedAt) : null;
 
         const workItem = await prisma.repairWorkItem.create({
             data: {
@@ -47,12 +46,14 @@ export default defineEventHandler(async event => {
                 title: body.title,
                 description: body.description ?? null,
                 orderIndex: body.orderIndex,
-                status: body.status,
-                completedAt: body.status === 'DONE' ? (completedAt ?? new Date()) : completedAt,
+                status: 'PENDING',
+                completedAt: null,
                 laborMinutes: body.laborMinutes ?? null,
             },
             include: RepairWorkItemWithRelations,
         });
+
+        await syncRepairStatusFromDefaultSteps(requestId, createdById);
 
         return { message: 'Work item created', data: workItem };
     }

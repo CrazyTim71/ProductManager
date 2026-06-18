@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
 
-type WorkItemTypeWithDefault = Prisma.WorkItemTypeGetPayload<{}> & {
+type WorkItemTypeWithDefault = Prisma.WorkItemTypeGetPayload<object> & {
     laborMinutes: number | null;
     isDefault: boolean;
 };
@@ -26,6 +26,11 @@ export const RepairRequestWithRelations = {
     customer: true,
     device: true,
     messageChannel: true,
+    statusHistory: {
+        orderBy: {
+            startedAt: 'desc',
+        },
+    },
     notes: { include: { author: true } },
     workItems: {
         include: RepairWorkItemWithRelations,
