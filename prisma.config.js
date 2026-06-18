@@ -1,8 +1,6 @@
-import { defineConfig } from 'prisma/config';
-
 const databaseUrl = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/postgres?schema=public';
 
-export default defineConfig({
+export default {
     schema: 'prisma/schema.prisma',
     migrations: {
         seed: 'bun ./prisma/seed.ts',
@@ -11,4 +9,4 @@ export default defineConfig({
     datasource: {
         url: databaseUrl,
     },
-});
+};
