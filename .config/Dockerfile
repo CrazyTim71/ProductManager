@@ -13,7 +13,7 @@ COPY . .
 RUN bun run prisma generate && bun run prepare && node node_modules/nuxt/bin/nuxt.mjs build
 
 
-FROM oven/bun:1-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production

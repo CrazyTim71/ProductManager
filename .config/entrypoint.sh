@@ -2,10 +2,10 @@
 set -e
 
 echo "Running database migrations..."
-bun prisma migrate deploy
+./node_modules/.bin/prisma migrate deploy
 
 echo "Seeding database..."
-bun prisma db seed
+./node_modules/.bin/prisma db seed
 
 echo "Starting application..."
 node .output/server/index.mjs

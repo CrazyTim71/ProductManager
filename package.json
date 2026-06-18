@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.0.1-alpha",
   "prisma": {
-    "seed": "bun prisma/seed.ts"
+    "seed": "node --import tsx prisma/seed.ts"
   },
   "scripts": {
     "build": "nuxt build",
@@ -49,6 +49,7 @@
     "redlock-universal": "^0.8.4",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
+    "tsx": "^4.22.4",
     "uuid": "^14.0.0",
     "vue": "^3.5.38",
     "vue-router": "^5.1.0",
