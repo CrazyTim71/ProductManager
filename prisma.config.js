@@ -3,7 +3,7 @@ const databaseUrl = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@
 export default {
     schema: 'prisma/schema.prisma',
     migrations: {
-        seed: 'bun ./prisma/seed.ts',
+        seed: 'node --import tsx prisma/seed.ts',
         path: 'prisma/migrations',
     },
     datasource: {
