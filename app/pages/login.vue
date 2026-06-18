@@ -1,16 +1,18 @@
 <template>
-    <common-box>
-        <ui-input-text
-            v-model="username"
-            @keyup.enter="login"
-        >Username</ui-input-text>
-        <ui-input-text
-            v-model="password"
-            input-type="password"
-            @keyup.enter="login"
-        >Password</ui-input-text>
-        <ui-button @click="login">Login</ui-button>
-    </common-box>
+    <common-page title="Login">
+        <common-box>
+            <ui-input-text
+                v-model="username"
+                @keyup.enter="login"
+            >Username</ui-input-text>
+            <ui-input-text
+                v-model="password"
+                input-type="password"
+                @keyup.enter="login"
+            >Password</ui-input-text>
+            <ui-button @click="login">Login</ui-button>
+        </common-box>
+    </common-page>
 </template>
 
 <script setup lang="ts">

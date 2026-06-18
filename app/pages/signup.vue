@@ -1,25 +1,27 @@
 <template>
-    <common-box>
-        <ui-input-text
-            v-model="username"
-            @keyup.enter="signup"
-        >Username</ui-input-text>
-        <ui-input-text
-            v-model="email"
-            @keyup.enter="signup"
-        >E-Mail</ui-input-text>
-        <ui-input-text
-            v-model="password"
-            input-type="password"
-            @keyup.enter="signup"
-        >Password</ui-input-text>
-        <ui-input-text
-            v-model="passwordre"
-            input-type="password"
-            @keyup.enter="signup"
-        >Repeat Password</ui-input-text>
-        <ui-button @click="signup">Signup</ui-button>
-    </common-box>
+    <common-page title="Signup">
+        <common-box>
+            <ui-input-text
+                v-model="username"
+                @keyup.enter="signup"
+            >Username</ui-input-text>
+            <ui-input-text
+                v-model="email"
+                @keyup.enter="signup"
+            >E-Mail</ui-input-text>
+            <ui-input-text
+                v-model="password"
+                input-type="password"
+                @keyup.enter="signup"
+            >Password</ui-input-text>
+            <ui-input-text
+                v-model="passwordre"
+                input-type="password"
+                @keyup.enter="signup"
+            >Repeat Password</ui-input-text>
+            <ui-button @click="signup">Signup</ui-button>
+        </common-box>
+    </common-page>
 </template>
 
 <script setup lang="ts">

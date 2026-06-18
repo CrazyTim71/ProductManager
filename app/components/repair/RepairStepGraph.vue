@@ -98,6 +98,11 @@ const props = defineProps({
     },
 });
 
+const emit = defineEmits({
+    update() {
+        return true;
+    },
+});
 const workItems = ref<RepairWorkItemWithRelationsType[]>([]);
 const isEditorVisible = ref(false);
 const editingItem = ref<RepairWorkItemWithRelationsType | null>(null);
@@ -146,6 +151,10 @@ function removeLocalWorkItem(workItemId: string) {
     workItems.value = workItems.value.filter(workItem => workItem.id !== workItemId);
 }
 
+function notifyRequestUpdated() {
+    emit('update');
+}
+
 function buildPayload(draft: RepairWorkItemDraft) {
     const assignedStaffId = draft.assignedStaffId && draft.assignedStaffId.length > 0 ? draft.assignedStaffId : null;
     const workItemTypeId = draft.workItemTypeId ?? null;
@@ -187,6 +196,7 @@ async function saveWorkItem(draft: RepairWorkItemDraft) {
     }
 
     closeEditor();
+    notifyRequestUpdated();
 }
 
 async function deleteWorkItem(item: RepairWorkItemWithRelationsType) {
@@ -201,6 +211,7 @@ async function deleteWorkItem(item: RepairWorkItemWithRelationsType) {
     });
 
     removeLocalWorkItem(item.id);
+    notifyRequestUpdated();
 }
 
 async function toggleWorkItemCompletion(item: RepairWorkItemWithRelationsType) {
@@ -221,6 +232,7 @@ async function toggleWorkItemCompletion(item: RepairWorkItemWithRelationsType) {
     });
 
     upsertLocalWorkItem(response.data);
+    notifyRequestUpdated();
 }
 
 async function toggleWorkItemInProgress(item: RepairWorkItemWithRelationsType) {
@@ -241,6 +253,7 @@ async function toggleWorkItemInProgress(item: RepairWorkItemWithRelationsType) {
     });
 
     upsertLocalWorkItem(response.data);
+    notifyRequestUpdated();
 }
 
 async function initializeDefaultSteps() {
@@ -249,6 +262,7 @@ async function initializeDefaultSteps() {
     });
 
     workItems.value = [...response];
+    notifyRequestUpdated();
 }
 </script>
 

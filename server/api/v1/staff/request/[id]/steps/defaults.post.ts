@@ -1,6 +1,6 @@
 import { createApiError } from '~~/server/utils/apiResponses';
+import { syncAutomaticRequestState } from '~~/server/utils/backend/automaticState';
 import { createDefaultWorkItemsForRequest } from '~~/server/utils/backend/workItems';
-import { syncRepairStatusFromDefaultSteps } from '~~/server/utils/backend/repairStatus';
 import { getRouterParam } from 'h3';
 
 export default defineEventHandler(async event => {
@@ -15,7 +15,10 @@ export default defineEventHandler(async event => {
         createdById: event.context.user?.userId ?? null,
     });
 
-    await syncRepairStatusFromDefaultSteps(requestId, event.context.user?.userId ?? null);
+    await syncAutomaticRequestState({
+        requestId,
+        actorUserId: event.context.user?.userId ?? null,
+    });
 
     event.node.res.statusCode = 201;
     return createdWorkItems;

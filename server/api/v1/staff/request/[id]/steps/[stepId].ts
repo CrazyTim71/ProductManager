@@ -1,7 +1,7 @@
 import { RepairWorkItemWithRelations } from '~~/types/req';
 import { repairWorkItemCreateSchema } from '~~/server/utils/backend/validation';
 import { createApiError } from '~~/server/utils/apiResponses';
-import { syncRepairStatusFromDefaultSteps } from '~~/server/utils/backend/repairStatus';
+import { syncAutomaticRequestState } from '~~/server/utils/backend/automaticState';
 import { getRouterParam, readBody } from 'h3';
 
 export default defineEventHandler(async event => {
@@ -40,7 +40,10 @@ export default defineEventHandler(async event => {
             include: RepairWorkItemWithRelations,
         });
 
-        await syncRepairStatusFromDefaultSteps(requestId, event.context.user?.userId ?? null);
+        await syncAutomaticRequestState({
+            requestId,
+            actorUserId: event.context.user?.userId ?? null,
+        });
 
         return { message: 'Work item updated', data: updatedWorkItem };
     }
@@ -50,7 +53,10 @@ export default defineEventHandler(async event => {
             where: { id: stepId },
         });
 
-        await syncRepairStatusFromDefaultSteps(requestId, event.context.user?.userId ?? null);
+        await syncAutomaticRequestState({
+            requestId,
+            actorUserId: event.context.user?.userId ?? null,
+        });
 
         return { message: 'Work item deleted' };
     }

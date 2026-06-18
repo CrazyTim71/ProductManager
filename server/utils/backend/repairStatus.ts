@@ -1,7 +1,31 @@
 import { RepairRequestStatus, RepairStatus, RepairWorkItemStatus } from '@prisma/client';
 
 import { createApiError } from '~~/server/utils/apiResponses';
+import { createNotification } from '~~/server/utils/backend/notificationCenter';
 import { prisma } from '~~/server/utils/prisma';
+
+const REPAIR_STATUS_PROGRESS_ORDER: Partial<Record<RepairStatus, number>> = {
+    [RepairStatus.RECEIVED]: 10,
+    [RepairStatus.IN_DIAGNOSIS]: 20,
+    [RepairStatus.WAITING_FOR_PARTS]: 30,
+    [RepairStatus.IN_REPAIR]: 40,
+    [RepairStatus.IN_QA]: 50,
+    [RepairStatus.IN_OUTGOING]: 60,
+    [RepairStatus.ON_THE_WAY_TO_CUSTOMER]: 70,
+    [RepairStatus.DELIVERED]: 80,
+    [RepairStatus.ARCHIVED]: 90,
+};
+
+function isBackwardAutoTransition(currentStatus: RepairStatus, nextStatus: RepairStatus) {
+    const currentOrder = REPAIR_STATUS_PROGRESS_ORDER[currentStatus];
+    const nextOrder = REPAIR_STATUS_PROGRESS_ORDER[nextStatus];
+
+    if (currentOrder === undefined || nextOrder === undefined) {
+        return false;
+    }
+
+    return nextOrder < currentOrder;
+}
 
 export async function setRepairStatus(requestId: string, status: RepairStatus, createdById?: string | null, note?: string) {
     const request = await prisma.repairRequest.findUnique({
@@ -63,6 +87,34 @@ export async function getLatestRepairStatus(requestId: string) {
     });
 }
 
+async function setRepairStatusAndNotifyCustomer(
+    requestId: string,
+    status: RepairStatus,
+    customerId: string,
+    createdById?: string | null,
+) {
+    const latest = await getLatestRepairStatus(requestId);
+
+    if (latest?.status === status) {
+        return latest;
+    }
+
+    if (latest?.status && isBackwardAutoTransition(latest.status, status)) {
+        return latest;
+    }
+
+    const statusHistory = await setRepairStatus(requestId, status, createdById ?? null);
+
+    await createNotification({
+        userId: customerId,
+        requestId,
+        subject: 'Repair status changed',
+        body: `Repair status is now ${ status }`,
+    });
+
+    return statusHistory;
+}
+
 export async function isRequestArchived(requestId: string) {
     const archivedCount = await prisma.repairStatusHistory.count({
         where: {
@@ -78,6 +130,7 @@ export async function syncRepairStatusFromDefaultSteps(requestId: string, create
     const request = await prisma.repairRequest.findUnique({
         where: { id: requestId },
         select: {
+            customerId: true,
             id: true,
             status: true,
         },
@@ -115,12 +168,12 @@ export async function syncRepairStatusFromDefaultSteps(requestId: string, create
 
     const hasRepairInProgress = inProgressItems.some(item => item.orderIndex >= 30 && item.orderIndex < 90);
     if (hasRepairInProgress) {
-        return setRepairStatus(requestId, RepairStatus.IN_REPAIR, createdById ?? null);
+        return setRepairStatusAndNotifyCustomer(requestId, RepairStatus.IN_REPAIR, request.customerId, createdById ?? null);
     }
 
     const hasDiagnosisInProgress = inProgressItems.some(item => item.orderIndex >= 10 && item.orderIndex < 30);
     if (hasDiagnosisInProgress) {
-        return setRepairStatus(requestId, RepairStatus.IN_DIAGNOSIS, createdById ?? null);
+        return setRepairStatusAndNotifyCustomer(requestId, RepairStatus.IN_DIAGNOSIS, request.customerId, createdById ?? null);
     }
 
     const firstDefaultStep = [...defaultItems].sort((left, right) => {
@@ -144,7 +197,7 @@ export async function syncRepairStatusFromDefaultSteps(requestId: string, create
     const allDefaultsCompleted = completedDefaults.length === defaultItems.length;
 
     if (allDefaultsCompleted) {
-        return setRepairStatus(requestId, RepairStatus.IN_OUTGOING, createdById ?? null);
+        return setRepairStatusAndNotifyCustomer(requestId, RepairStatus.IN_OUTGOING, request.customerId, createdById ?? null);
     }
 
     const highestCompletedOrder = completedDefaults.reduce((maxOrder, item) => {
@@ -152,16 +205,16 @@ export async function syncRepairStatusFromDefaultSteps(requestId: string, create
     }, 0);
 
     if (highestCompletedOrder < 10) {
-        return setRepairStatus(requestId, RepairStatus.RECEIVED, createdById ?? null);
+        return setRepairStatusAndNotifyCustomer(requestId, RepairStatus.RECEIVED, request.customerId, createdById ?? null);
     }
 
     if (highestCompletedOrder < 30) {
-        return setRepairStatus(requestId, RepairStatus.IN_DIAGNOSIS, createdById ?? null);
+        return setRepairStatusAndNotifyCustomer(requestId, RepairStatus.IN_DIAGNOSIS, request.customerId, createdById ?? null);
     }
 
     if (highestCompletedOrder < 90) {
-        return setRepairStatus(requestId, RepairStatus.IN_REPAIR, createdById ?? null);
+        return setRepairStatusAndNotifyCustomer(requestId, RepairStatus.IN_REPAIR, request.customerId, createdById ?? null);
     }
 
-    return setRepairStatus(requestId, RepairStatus.IN_QA, createdById ?? null);
+    return setRepairStatusAndNotifyCustomer(requestId, RepairStatus.IN_QA, request.customerId, createdById ?? null);
 }

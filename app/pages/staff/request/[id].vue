@@ -94,7 +94,7 @@
                     <ui-input-text v-model="displayName">Display Name</ui-input-text>
                     <ui-input-text v-model="serialNumber">Serial Number</ui-input-text>
                     <ui-text-area v-model="notes">Notes</ui-text-area>
-                    <ui-button @click="saveRepaiDevice()">Save</ui-button>
+                    <ui-button @click="saveRepairDevice()">Save</ui-button>
                     <h3>Device</h3>
                     <ui-labeled-text :value="repairDevice?.device?.name">Name</ui-labeled-text>
                     <ui-labeled-text :value="repairDevice?.device?.deviceBrand.name">Brand</ui-labeled-text>
@@ -116,6 +116,7 @@
                 <repair-step-graph
                     editable
                     :request="repairReq"
+                    @update="onRepairStepGraphUpdate"
                 />
             </div>
         </div>
@@ -223,6 +224,14 @@ watch(() => repairReq.value?.device?.id, async () => {
     immediate: true,
 });
 
+async function syncRequestStateView() {
+    await refreshRepairReq();
+}
+
+async function onRepairStepGraphUpdate() {
+    await syncRequestStateView();
+}
+
 async function onSubmit() {
     if (selectedDevice.value && repairReq.value) {
         isVisible.value = false;
@@ -234,12 +243,12 @@ async function onSubmit() {
                 requestId: repairReq.value.id,
             },
         });
-        await refreshRepairReq();
+        await syncRequestStateView();
         await loadRepairDevice();
     }
 }
 
-async function saveRepaiDevice() {
+async function saveRepairDevice() {
     await $fetch(`/api/v1/staff/repair-device/${ repairDevice.value?.id }`, {
         method: 'PUT',
         body: {
@@ -286,13 +295,12 @@ async function setRequestState(status: Extract<RepairRequestStatus, 'CANCELLED' 
         });
     }
 
-    await refreshRepairReq();
+    await syncRequestStateView();
 }
 
 async function setRepairStatus(status: RepairStatus) {
-    if (!repairReq.value) {
+    await syncRequestStateView();
         return;
-    }
 
     repairStatusOverride.value = status;
 
@@ -312,7 +320,7 @@ async function setRepairStatus(status: RepairStatus) {
         });
     }
 
-    await refreshRepairReq();
+    await syncRequestStateView();
     repairStatusOverride.value = null;
 }
 
@@ -325,7 +333,7 @@ async function archiveRequest() {
         method: 'POST',
     });
 
-    await refreshRepairReq();
+    await syncRequestStateView();
 }
 </script>
 

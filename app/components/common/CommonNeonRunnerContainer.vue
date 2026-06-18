@@ -21,6 +21,10 @@ const props = withDefaults(defineProps<{
     radius: '18px',
 });
 
+defineSlots<{
+    default: () => any;
+}>();
+
 const toneStyles: Record<NeonRunnerTone, { base: string; mid: string; bright: string }> = {
     primary: {
         base: '#512da8',
@@ -55,10 +59,6 @@ const styleVars = computed(() => ({
     '--runner-bright': toneStyles[props.tone].bright,
     '--runner-radius': props.radius,
 }));
-
-defineSlots<{
-    default: () => any;
-}>();
 </script>
 
 <style lang="scss">

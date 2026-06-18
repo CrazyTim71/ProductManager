@@ -1,5 +1,8 @@
 <template>
-    <div class="req-list">
+    <div
+        v-if="req.length > 0 && req"
+        class="req-list"
+    >
         <div
             v-for="r in req"
             :key="r.id"
@@ -13,10 +16,10 @@
             <ui-labeled-text :value="r.suspectedIssue">Suspected issue</ui-labeled-text>
             <ui-button :href="`/staff/request/${ r.id }`">Details</ui-button>
         </div>
-        <common-box v-if="req?.length === 0">
-            <h2>Keine historischen Anfragen</h2>
-        </common-box>
     </div>
+    <common-box v-else>
+        <h2>Keine historischen Anfragen</h2>
+    </common-box>
 </template>
 
 <script lang="ts" setup>

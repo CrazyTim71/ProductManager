@@ -49,6 +49,7 @@
                         Auftrag anlegen
                     </ui-button>
                     <ui-button
+                        v-if="store.me?.loggedIn"
                         to="/request"
                         type="secondary"
                     >

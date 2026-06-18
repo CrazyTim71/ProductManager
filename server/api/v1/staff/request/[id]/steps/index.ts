@@ -1,7 +1,7 @@
 import { RepairWorkItemWithRelations } from '~~/types/req';
 import { repairWorkItemCreateSchema } from '~~/server/utils/backend/validation';
 import { createApiError } from '~~/server/utils/apiResponses';
-import { syncRepairStatusFromDefaultSteps } from '~~/server/utils/backend/repairStatus';
+import { syncAutomaticRequestState } from '~~/server/utils/backend/automaticState';
 import { getRouterParam, readBody } from 'h3';
 
 export default defineEventHandler(async event => {
@@ -53,7 +53,10 @@ export default defineEventHandler(async event => {
             include: RepairWorkItemWithRelations,
         });
 
-        await syncRepairStatusFromDefaultSteps(requestId, createdById);
+        await syncAutomaticRequestState({
+            requestId,
+            actorUserId: createdById,
+        });
 
         return { message: 'Work item created', data: workItem };
     }

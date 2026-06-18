@@ -26,6 +26,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             text: 'Requests',
             path: '/request',
             icon: 'material-symbols:search',
+            hide: !store.me?.loggedIn,
         },
         {
             text: 'Staff',
