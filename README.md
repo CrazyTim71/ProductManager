@@ -1,4 +1,4 @@
-# ProductManager
+# Product Manager
 
 Modernes Reparatur- und Auftragsmanagement für Werkstätten, Service-Teams und Ersatzteilprozesse.
 
