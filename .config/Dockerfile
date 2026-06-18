@@ -10,7 +10,7 @@ COPY package.json bun.lock tsconfig.json ./
 RUN bun install
 
 COPY . .
-RUN bun run prisma generate && bun run prepare && node node_modules/nuxt/bin/nuxt.mjs build
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" bun run prisma generate && bun run prepare && node node_modules/nuxt/bin/nuxt.mjs build
 
 
 FROM node:20-alpine AS runner
@@ -20,6 +20,8 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 RUN apk add --no-cache wget
+
+ENV PATH="/app/node_modules/.bin:$PATH"
 
 RUN addgroup -S app && adduser -S app -G app
 
