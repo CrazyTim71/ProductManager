@@ -37,9 +37,6 @@ async function initializeAdminUser() {
             if (import.meta.dev) {
                 isActive = true;
             }
-            else {
-                isActive = false;
-            }
 
             const result = await createUser(username, email, password, true, false, isActive);
             if (!result) {

@@ -28,6 +28,13 @@
             <span v-if="item.workItemType.isDefault">Default</span>
         </div>
 
+        <repair-work-item-parts
+            :editable="editable"
+            :parts="itemParts"
+            @add="emit('addPart')"
+            @transition="(partId, status) => emit('changePartStatus', partId, status)"
+        />
+
         <div
             v-if="editable"
             class="work-item-card-actions"
@@ -54,8 +61,11 @@
 </template>
 
 <script setup lang="ts">
+import type { PartOrderStatus } from '@prisma/client';
 import type { PropType } from 'vue';
-import type { RepairWorkItemWithRelationsType } from '~~/types/req';
+import type { PartOrderWithRelationsType, RepairWorkItemWithRelationsType } from '~~/types/req';
+
+import RepairWorkItemParts from './RepairWorkItemParts.vue';
 
 const props = defineProps({
     item: {
@@ -65,6 +75,10 @@ const props = defineProps({
     editable: {
         type: Boolean,
         default: false,
+    },
+    partOrders: {
+        type: Array as PropType<PartOrderWithRelationsType[]>,
+        default: () => [],
     },
 });
 
@@ -81,6 +95,12 @@ const emit = defineEmits({
     toggleDone() {
         return true;
     },
+    addPart() {
+        return true;
+    },
+    changePartStatus(partId: string, status: PartOrderStatus) {
+        return Boolean(partId) && Boolean(status);
+    },
 });
 
 const cardStyle = computed(() => ({
@@ -88,6 +108,7 @@ const cardStyle = computed(() => ({
 }));
 
 const assignedStaffLabel = computed(() => props.item.assignedStaff?.displayName ?? props.item.assignedStaff?.username ?? 'Unassigned');
+const itemParts = computed(() => props.partOrders.filter(partOrder => partOrder.workItemId === props.item.id));
 </script>
 
 <style scoped lang="scss">

@@ -10,7 +10,10 @@
                 input-type="password"
                 @keyup.enter="login"
             >Password</ui-input-text>
-            <ui-button type="link" to="/forgot-password">Forgot password?</ui-button>
+            <ui-button
+                to="/forgot-password"
+                type="link"
+            >Forgot password?</ui-button>
             <ui-button @click="login">Login</ui-button>
         </common-box>
     </common-page>

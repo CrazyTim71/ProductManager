@@ -32,7 +32,7 @@ export const loginSchema = z.object({
 }).strict();
 
 export const verifyEmailSchema = z.object({
-    token: z.string().min(16, 'Invalid verification token').max(256, 'Invalid verification token'),
+    token: z.string().min(1, 'Verification token is required').transform(val => val.trim()),
 }).strict();
 
 export const passwordResetRequestSchema = z.object({
@@ -40,7 +40,7 @@ export const passwordResetRequestSchema = z.object({
 }).strict();
 
 export const passwordResetConfirmSchema = z.object({
-    token: z.string().min(16, 'Invalid reset token').max(256, 'Invalid reset token'),
+    token: z.string().min(1, 'Reset token is required').transform(val => val.trim()),
     password: passwordSchema,
     passwordRepeated: passwordSchema,
 }).strict();

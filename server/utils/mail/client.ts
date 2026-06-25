@@ -1,6 +1,6 @@
-import { getMailConfig } from '~~/server/utils/mail/config';
-import { sendSmtpEmail } from '~~/server/utils/mail/transports/smtp';
-import type { MailSendResult, SendEmailInput } from '~~/server/utils/mail/types';
+import { getMailConfig } from './config';
+import { sendSmtpEmail } from './transports/smtp';
+import type { MailSendResult, SendEmailInput } from './types';
 
 function normalizeRecipients(to: string | string[]) {
     if (Array.isArray(to)) {

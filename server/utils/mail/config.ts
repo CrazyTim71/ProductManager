@@ -1,4 +1,4 @@
-import type { MailConfig, SmtpConfig } from '~~/server/utils/mail/types';
+import type { MailConfig, SmtpConfig } from './types';
 
 function parseBoolean(value: string | undefined, fallback: boolean) {
     if (!value) {

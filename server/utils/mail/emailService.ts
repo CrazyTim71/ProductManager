@@ -1,10 +1,10 @@
-import { buildAccountVerificationEmail } from '~~/server/utils/mail/templates/accountVerificationEmail';
-import { buildPasswordResetEmail } from '~~/server/utils/mail/templates/passwordResetEmail';
-import { buildNewRequestAlertEmail } from '~~/server/utils/mail/templates/newRequestAlertEmail';
-import { buildRequestAcceptedEmail } from '~~/server/utils/mail/templates/requestAcceptedEmail';
-import { buildNotificationDigestEmail } from '~~/server/utils/mail/templates/notificationDigestEmail';
-import { sendEmail } from '~~/server/utils/mail/client';
-import { getMailConfig } from '~~/server/utils/mail/config';
+import { buildAccountVerificationEmail } from './templates/accountVerificationEmail';
+import { buildPasswordResetEmail } from './templates/passwordResetEmail';
+import { buildNewRequestAlertEmail } from './templates/newRequestAlertEmail';
+import { buildRequestAcceptedEmail } from './templates/requestAcceptedEmail';
+import { buildNotificationDigestEmail } from './templates/notificationDigestEmail';
+import { sendEmail } from './client';
+import { getMailConfig } from './config';
 
 export interface NotificationDigestEmailItem {
     id: string;

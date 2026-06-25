@@ -1,6 +1,6 @@
-import { renderEmailButton } from '~~/server/utils/mail/components/button';
-import { renderEmailLayout } from '~~/server/utils/mail/components/layout';
-import type { EmailTemplate } from '~~/server/utils/mail/types';
+import { renderEmailButton } from '../components/button';
+import { renderEmailLayout } from '../components/layout';
+import type { EmailTemplate } from '../types';
 
 export interface RequestAcceptedTemplateInput {
     customerName: string;

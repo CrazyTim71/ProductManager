@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-import type { MailSendResult, SendEmailInput, SmtpConfig } from '~~/server/utils/mail/types';
+import type { MailSendResult, SendEmailInput, SmtpConfig } from '../types';
 
 type AddressLike = {
     address: string;

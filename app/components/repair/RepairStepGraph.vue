@@ -61,6 +61,9 @@
                 <repair-work-item-card
                     :editable="editable"
                     :item="item"
+                    :part-orders="partOrders"
+                    @addPart="openPartPopup(item.id)"
+                    @changePartStatus="updatePartOrderStatus"
                     @delete="deleteWorkItem(item)"
                     @edit="openEdit(item)"
                     @toggleDone="toggleWorkItemCompletion(item)"
@@ -78,12 +81,42 @@
             @close="closeEditor"
             @save="saveWorkItem"
         />
+
+        <common-popup
+            :is-visible="isPartPopupVisible"
+            submit-text="Add part"
+            @close="closePartPopup"
+            @submit="createPartOrder"
+        >
+            <div class="step-graph-part-popup">
+                <h3>Add part to step</h3>
+                <common-selector
+                    v-model="selectedCatalogPart"
+                    one
+                    path="/api/v1/staff/part-catalog"
+                >
+                    <template #add="{ item }">
+                        {{ item.name }}
+                    </template>
+                    <template #remove="{ item }">
+                        {{ item.name }}
+                    </template>
+                </common-selector>
+                <ui-input-number v-model="partQuantity">Quantity</ui-input-number>
+                <ui-input-text v-model="partSupplier">Supplier</ui-input-text>
+                <ui-input-number v-model="partEstimatedCost">Estimated Cost</ui-input-number>
+                <ui-text-area v-model="partNote">Note</ui-text-area>
+            </div>
+        </common-popup>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import type { RepairRequestWithRelationsType, RepairWorkItemWithRelationsType } from '~~/types/req';
+import type { PartCatalog, PartOrderStatus } from '@prisma/client';
+
+import type { PartOrderResponse, PartOrderUpdatePayload } from '~~/types/parts';
+import type { PartOrderWithRelationsType, RepairRequestWithRelationsType, RepairWorkItemWithRelationsType } from '~~/types/req';
 import type { RepairWorkItemDraft } from '~~/app/utils/repairWorkItems';
 import { groupRepairWorkItemsByPhase } from '~~/app/utils/repairWorkItems';
 
@@ -98,20 +131,27 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits({
-    update() {
-        return true;
-    },
-});
 const workItems = ref<RepairWorkItemWithRelationsType[]>([]);
+const partOrders = ref<PartOrderWithRelationsType[]>([]);
 const isEditorVisible = ref(false);
 const editingItem = ref<RepairWorkItemWithRelationsType | null>(null);
 const editorDefaultOrderIndex = ref(0);
+const isPartPopupVisible = ref(false);
+const selectedWorkItemId = ref<string | null>(null);
+const selectedCatalogPart = ref<PartCatalog[]>([]);
+const partQuantity = ref(1);
+const partSupplier = ref('');
+const partEstimatedCost = ref<number | null>(null);
+const partNote = ref('');
 const router = useRouter();
 const route = useRoute();
 
 watch(() => props.request.workItems, items => {
     workItems.value = [...(items ?? [])];
+}, { immediate: true });
+
+watch(() => props.request.partOrders, orders => {
+    partOrders.value = [...(orders ?? [])];
 }, { immediate: true });
 
 const phases = computed(() => groupRepairWorkItemsByPhase(workItems.value));
@@ -120,6 +160,21 @@ const completedWorkItems = computed(() => workItems.value.filter(workItem => wor
 function closeEditor() {
     isEditorVisible.value = false;
     editingItem.value = null;
+}
+
+function closePartPopup() {
+    isPartPopupVisible.value = false;
+    selectedWorkItemId.value = null;
+    selectedCatalogPart.value = [];
+    partQuantity.value = 1;
+    partSupplier.value = '';
+    partEstimatedCost.value = null;
+    partNote.value = '';
+}
+
+function openPartPopup(workItemId: string) {
+    selectedWorkItemId.value = workItemId;
+    isPartPopupVisible.value = true;
 }
 
 function openCreate(orderIndex: number) {
@@ -151,8 +206,17 @@ function removeLocalWorkItem(workItemId: string) {
     workItems.value = workItems.value.filter(workItem => workItem.id !== workItemId);
 }
 
-function notifyRequestUpdated() {
-    emit('update');
+function upsertLocalPartOrder(partOrder: PartOrderWithRelationsType) {
+    const existingIndex = partOrders.value.findIndex(existing => existing.id === partOrder.id);
+
+    if (existingIndex === -1) {
+        partOrders.value = [partOrder, ...partOrders.value];
+        return;
+    }
+
+    const nextPartOrders = [...partOrders.value];
+    nextPartOrders.splice(existingIndex, 1, partOrder);
+    partOrders.value = nextPartOrders;
 }
 
 function buildPayload(draft: RepairWorkItemDraft) {
@@ -196,7 +260,6 @@ async function saveWorkItem(draft: RepairWorkItemDraft) {
     }
 
     closeEditor();
-    notifyRequestUpdated();
 }
 
 async function deleteWorkItem(item: RepairWorkItemWithRelationsType) {
@@ -211,7 +274,6 @@ async function deleteWorkItem(item: RepairWorkItemWithRelationsType) {
     });
 
     removeLocalWorkItem(item.id);
-    notifyRequestUpdated();
 }
 
 async function toggleWorkItemCompletion(item: RepairWorkItemWithRelationsType) {
@@ -232,7 +294,6 @@ async function toggleWorkItemCompletion(item: RepairWorkItemWithRelationsType) {
     });
 
     upsertLocalWorkItem(response.data);
-    notifyRequestUpdated();
 }
 
 async function toggleWorkItemInProgress(item: RepairWorkItemWithRelationsType) {
@@ -253,7 +314,6 @@ async function toggleWorkItemInProgress(item: RepairWorkItemWithRelationsType) {
     });
 
     upsertLocalWorkItem(response.data);
-    notifyRequestUpdated();
 }
 
 async function initializeDefaultSteps() {
@@ -262,7 +322,43 @@ async function initializeDefaultSteps() {
     });
 
     workItems.value = [...response];
-    notifyRequestUpdated();
+}
+
+async function createPartOrder() {
+    const workItemId = selectedWorkItemId.value;
+    const catalogPart = selectedCatalogPart.value[0];
+
+    if (!workItemId || !catalogPart) {
+        return;
+    }
+
+    const response = await $fetch<PartOrderResponse>(`/api/v1/staff/request/${ props.request.id }/steps/${ workItemId }/parts`, {
+        body: {
+            catalogPartId: catalogPart.id,
+            quantity: partQuantity.value,
+            supplierName: partSupplier.value || undefined,
+            estimatedCost: partEstimatedCost.value,
+            note: partNote.value || undefined,
+            workItemId,
+        },
+        method: 'POST',
+    });
+
+    upsertLocalPartOrder(response.data);
+    closePartPopup();
+}
+
+async function updatePartOrderStatus(partId: string, status: PartOrderStatus) {
+    const payload: PartOrderUpdatePayload = {
+        status,
+    };
+
+    const response = await $fetch<PartOrderResponse>(`/api/v1/staff/request/${ props.request.id }/parts/${ partId }`, {
+        body: payload,
+        method: 'PUT',
+    });
+
+    upsertLocalPartOrder(response.data);
 }
 </script>
 
@@ -356,6 +452,13 @@ async function initializeDefaultSteps() {
     &-legend-label {
         font-size: 12px;
         color: $typographyPrimary;
+    }
+
+    &-part-popup {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: min(560px, 80vw);
     }
 }
 </style>

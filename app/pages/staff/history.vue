@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="req.length > 0 && req"
+        v-if="req && req.length > 0"
         class="req-list"
     >
         <div

@@ -1,7 +1,7 @@
-import { renderEmailButton } from '~~/server/utils/mail/components/button';
-import { renderEmailListItem } from '~~/server/utils/mail/components/list';
-import { renderEmailLayout } from '~~/server/utils/mail/components/layout';
-import type { EmailTemplate } from '~~/server/utils/mail/types';
+import { renderEmailButton } from '../components/button';
+import { renderEmailListItem } from '../components/list';
+import { renderEmailLayout } from '../components/layout';
+import type { EmailTemplate } from '../types';
 
 export interface NotificationDigestItem {
     id: string;

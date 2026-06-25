@@ -198,15 +198,17 @@ onMounted(() => {
     const revealTargets = root.querySelectorAll<HTMLElement>('[data-reveal]');
     const orbs = root.querySelectorAll<HTMLElement>('.neon-orb');
 
-    animate(orbs, {
-        translateX: (_target: unknown, index: number) => (index % 2 === 0 ? 28 : -24),
-        translateY: (_target: unknown, index: number) => (index === 1 ? -20 : 22),
-        scale: (_target: unknown, index: number) => (index === 2 ? 1.16 : 1.08),
-        duration: 4400,
-        delay: stagger(280),
-        loop: true,
-        alternate: true,
-        ease: 'inOutSine',
+    orbs.forEach((orb, index) => {
+        animate(orb, {
+            translateX: index % 2 === 0 ? 28 : -24,
+            translateY: index === 1 ? -20 : 22,
+            scale: index === 2 ? 1.16 : 1.08,
+            duration: 4400,
+            delay: index * 280,
+            loop: true,
+            alternate: true,
+            ease: 'inOutSine',
+        });
     });
 
     animate(heroItems, {

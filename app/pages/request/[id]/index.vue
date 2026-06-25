@@ -4,7 +4,35 @@
         :title="`Reperaturauftrag von ${ repairReq?.customer.displayName }`"
     >
         <ui-status :status="displayStatus"/>
-        <div class="request-container">
+        <div
+            v-if="isCompletedView"
+            class="request-compact"
+        >
+            <div class="request-customer">
+                <h2>Assigned Staff</h2>
+                <template v-if="repairReq.assignedStaff">
+                    {{ repairReq.assignedStaff.displayName }}
+                </template>
+                <template v-else>
+                    <h3>Noch niemand</h3>
+                </template>
+                <ui-button @click="openChat()">Chat</ui-button>
+            </div>
+
+            <repair-savings-tile :summary="savingsSummary"/>
+
+            <div class="request-steps">
+                <repair-step-graph
+                    :editable="false"
+                    :request="repairReq"
+                />
+            </div>
+        </div>
+
+        <div
+            v-else
+            class="request-container"
+        >
             <div class="request-customer">
                 <h2>Assigned Staff</h2>
                 <template v-if="repairReq.assignedStaff">
@@ -59,6 +87,7 @@
                     <h3>Noch nicht erstellt</h3>
                 </template>
             </div>
+            <repair-savings-tile :summary="savingsSummary"/>
             <div class="request-steps">
                 <repair-step-graph
                     :editable="false"
@@ -73,6 +102,9 @@
 import { RepairRequestStatus } from '@prisma/client';
 
 import LabeledText from '~/components/ui/LabeledText.vue';
+import RepairSavingsTile from '~/components/repair/RepairSavingsTile.vue';
+import { calculateRepairSavings } from '~~/app/utils/repairSavings';
+import type { AppConfigResponse } from '~~/types/config';
 import type { RepairDeviceWithRelationsType, RepairRequestWithRelationsType } from '~~/types/req';
 
 const route = useRoute();
@@ -84,6 +116,7 @@ const notes = ref('');
 const repairDevice = ref<RepairDeviceWithRelationsType | null>(null);
 
 const { data: repairReq } = useFetch<RepairRequestWithRelationsType>(`/api/v1/user/request/${ id }`);
+const { data: config } = useFetch<AppConfigResponse>('/api/v1/user/config');
 const isFirstWorkItemCompleted = computed(() => {
     const workItems = repairReq.value?.workItems ?? [];
 
@@ -104,6 +137,21 @@ const displayStatus = computed(() => {
     }
 
     return repairReq.value.status;
+});
+const isCompletedView = computed(() => repairReq.value?.status === RepairRequestStatus.COMPLETED);
+const hourlyRate = computed(() => Number(config.value?.hourlyRate ?? 0));
+const savingsSummary = computed(() => {
+    if (!repairReq.value) {
+        return {
+            laborCost: 0,
+            newPurchaseValue: 0,
+            partsCost: 0,
+            repairValue: 0,
+            savedValue: 0,
+        };
+    }
+
+    return calculateRepairSavings(repairReq.value, hourlyRate.value);
 });
 
 async function loadRepairDevice() {
@@ -136,9 +184,16 @@ async function openChat() {
 
 <style lang="scss" scoped>
 .request {
+    &-compact {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        width: 100%;
+    }
+
     &-container {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 32px;
         width: 100%;
 

@@ -43,6 +43,11 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     path: '/staff/history',
                     icon: 'material-symbols:history',
                 },
+                {
+                    text: 'Parts',
+                    path: '/staff/parts',
+                    icon: 'material-symbols:build-circle',
+                },
             ],
         },
         {
@@ -69,6 +74,11 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     text: 'Work Item Types',
                     path: '/admin/work-item-type',
                     icon: 'material-symbols:list',
+                },
+                {
+                    text: 'Config',
+                    path: '/admin/config',
+                    icon: 'material-symbols:settings',
                 },
             ],
         },

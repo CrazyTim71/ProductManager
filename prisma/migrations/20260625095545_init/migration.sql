@@ -16,6 +16,9 @@ CREATE TYPE "RepairWorkItemStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'DONE', 'B
 -- CreateEnum
 CREATE TYPE "NotificationStatus" AS ENUM ('PENDING', 'SENT', 'FAILED');
 
+-- CreateEnum
+CREATE TYPE "AuthTokenPurpose" AS ENUM ('EMAIL_VERIFICATION', 'PASSWORD_RESET');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -30,6 +33,20 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AuthToken" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "purpose" "AuthTokenPurpose" NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "consumedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AuthToken_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -303,6 +320,7 @@ CREATE TABLE "Notification" (
     "body" TEXT NOT NULL,
     "sentAt" TIMESTAMP(3),
     "failedAt" TIMESTAMP(3),
+    "emailDigestSentAt" TIMESTAMP(3),
     "errorMessage" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -317,6 +335,15 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
 CREATE INDEX "User_role_isActive_idx" ON "User"("role", "isActive");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AuthToken_tokenHash_key" ON "AuthToken"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "AuthToken_userId_purpose_consumedAt_idx" ON "AuthToken"("userId", "purpose", "consumedAt");
+
+-- CreateIndex
+CREATE INDEX "AuthToken_expiresAt_idx" ON "AuthToken"("expiresAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DeviceCategory_name_key" ON "DeviceCategory"("name");
@@ -413,6 +440,9 @@ CREATE INDEX "Notification_requestId_createdAt_idx" ON "Notification"("requestId
 
 -- CreateIndex
 CREATE INDEX "Notification_messageChannelId_createdAt_idx" ON "Notification"("messageChannelId", "createdAt");
+
+-- AddForeignKey
+ALTER TABLE "AuthToken" ADD CONSTRAINT "AuthToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Device" ADD CONSTRAINT "Device_deviceBrandId_fkey" FOREIGN KEY ("deviceBrandId") REFERENCES "DeviceBrand"("id") ON DELETE CASCADE ON UPDATE CASCADE;
