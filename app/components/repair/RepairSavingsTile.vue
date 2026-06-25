@@ -69,6 +69,7 @@ defineProps({
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+
             opacity: 0.8;
         }
 
@@ -78,15 +79,15 @@ defineProps({
         }
 
         &--repair {
+            border: 1px solid rgb(102 187 88 / 30%);
             color: $success500;
             background: rgb(102 187 88 / 15%);
-            border: 1px solid rgb(102 187 88 / 30%);
         }
 
         &--purchase {
+            border: 1px solid rgb(187 157 88 / 30%);
             color: $warning500;
             background: rgb(187 157 88 / 15%);
-            border: 1px solid rgb(187 157 88 / 30%);
         }
     }
 
@@ -105,6 +106,7 @@ defineProps({
 
         font-size: 12px;
         color: $typographyPrimary;
+
         opacity: 0.7;
     }
 }

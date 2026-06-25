@@ -17,13 +17,13 @@ interface CrudModel {
 
 type MaybePromise<T> = T | Promise<T>;
 
-type CrudRecord<TModel, TInclude = undefined> = Prisma.Result<
+type CrudRecord<TModel, TInclude = undefined> = NonNullable<Prisma.Result<
     TModel,
     [TInclude] extends [undefined] ? object : { include: TInclude },
     'findUnique'
->;
+>>;
 
-type CrudBaseRecord<TModel> = Prisma.Result<TModel, object, 'findUnique'>;
+type CrudBaseRecord<TModel> = NonNullable<Prisma.Result<TModel, object, 'findUnique'>>;
 
 type CrudBody<TSchema extends z.ZodTypeAny> = z.infer<TSchema>;
 

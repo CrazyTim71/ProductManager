@@ -184,7 +184,9 @@ watch(() => repairReq.value?.assignedStaff, staff => {
     selectedAssignedStaff.value = u
         ? [{ id: u.id, name: u.displayName ?? u.username ?? u.email }]
         : [];
-    nextTick(() => { assignInitializing.value = false; });
+    nextTick(() => {
+        assignInitializing.value = false;
+    });
 }, { immediate: true });
 
 watch(selectedAssignedStaff, async staff => {

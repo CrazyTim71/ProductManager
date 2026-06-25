@@ -22,7 +22,7 @@ export function useAdminEdit(apiBase: string, listPath: string) {
 
     async function save(body: Record<string, unknown>) {
         try {
-            await apiFetch(id.value === 'new' ? apiBase : `${apiBase}/${id.value}`, {
+            await apiFetch(id.value === 'new' ? apiBase : `${ apiBase }/${ id.value }`, {
                 method: id.value === 'new' ? 'POST' : 'PUT',
                 body,
             });
