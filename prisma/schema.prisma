@@ -39,6 +39,7 @@ enum PartOrderStatus {
   ORDERED
   SHIPPED
   RECEIVED
+  ALREADY_IN_STOCK
   INSTALLED
   CANCELLED
 }
@@ -321,10 +322,18 @@ model RepairWorkItem {
   createdBy     User?         @relation("CreatedWorkItems", fields: [createdById], references: [id], onDelete: SetNull)
   assignedStaff User?         @relation("AssignedWorkItems", fields: [assignedStaffId], references: [id], onDelete: SetNull)
   workItemType  WorkItemType  @relation(fields: [workItemTypeId], references: [id], onDelete: Restrict)
+  partOrders    PartOrder[]
 
   @@index([requestId, orderIndex])
   @@index([deviceId, workItemTypeId])
   @@index([assignedStaffId, status])
+}
+
+model AppConfig {
+  id         String   @id @default("default")
+  hourlyRate Decimal  @db.Decimal(12, 2) @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model PartCatalog {
@@ -349,6 +358,7 @@ model PartOrder {
   requestId     String
   deviceId      String?
   catalogPartId String?
+  workItemId    String?
   createdById   String?
   status        PartOrderStatus @default(DRAFT)
   quantity      Int             @default(1)
@@ -367,10 +377,12 @@ model PartOrder {
   request     RepairRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   device      RepairDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
   catalogPart PartCatalog?  @relation(fields: [catalogPartId], references: [id], onDelete: SetNull)
+  workItem    RepairWorkItem? @relation(fields: [workItemId], references: [id], onDelete: SetNull)
   createdBy   User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([requestId, status])
   @@index([deviceId, status])
+  @@index([workItemId, status])
 }
 
 model RepairAttachment {

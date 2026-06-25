@@ -105,3 +105,36 @@ export const repairWorkItemCreateSchema = z.object({
     status: repairWorkItemStatusSchema.default('PENDING'),
     completedAt: z.string().datetime().nullable().optional(),
 }).strict();
+
+export const appConfigUpdateSchema = z.object({
+    hourlyRate: z.number().min(0).max(9999),
+}).strict();
+
+export const partCatalogCreateSchema = z.object({
+    name: z.string().min(2).max(120).transform(val => val.trim()),
+    manufacturer: z.string().max(100).transform(val => val.trim()).optional(),
+    sku: z.string().max(100).transform(val => val.trim()).optional(),
+    description: z.string().max(500).transform(val => val.trim()).optional(),
+    unitCost: z.number().min(0).nullable().optional(),
+    retailPrice: z.number().min(0).nullable().optional(),
+}).strict();
+
+export const partOrderCreateSchema = z.object({
+    catalogPartId: z.string(),
+    quantity: z.number().int().min(1).max(100),
+    supplierName: z.string().max(120).transform(val => val.trim()).optional(),
+    estimatedCost: z.number().min(0).nullable().optional(),
+    note: z.string().max(500).transform(val => val.trim()).optional(),
+    workItemId: z.string().optional(),
+}).strict();
+
+export const partOrderUpdateSchema = z.object({
+    quantity: z.number().int().min(1).max(100).optional(),
+    supplierName: z.string().max(120).transform(val => val.trim()).nullable().optional(),
+    estimatedCost: z.number().min(0).nullable().optional(),
+    actualCost: z.number().min(0).nullable().optional(),
+    savedValue: z.number().nullable().optional(),
+    status: z.enum(['DRAFT', 'ORDERED', 'SHIPPED', 'RECEIVED', 'ALREADY_IN_STOCK', 'INSTALLED', 'CANCELLED']).optional(),
+    note: z.string().max(500).transform(val => val.trim()).nullable().optional(),
+    workItemId: z.string().nullable().optional(),
+}).strict();

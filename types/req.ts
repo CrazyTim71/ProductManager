@@ -20,6 +20,20 @@ export type RepairWorkItemWithRelationsType = Omit<PrismaRepairWorkItemWithRelat
     workItemType: WorkItemTypeWithDefault;
 };
 
+export const PartOrderWithRelations = {
+    catalogPart: true,
+    createdBy: true,
+    workItem: {
+        include: {
+            workItemType: true,
+        },
+    },
+} satisfies Prisma.PartOrderInclude;
+
+export type PartOrderWithRelationsType = Prisma.PartOrderGetPayload<{
+    include: typeof PartOrderWithRelations;
+}>;
+
 export const RepairRequestWithRelations = {
     assignedStaff: true,
     attachments: true,
@@ -47,7 +61,12 @@ export const RepairRequestWithRelations = {
             { createdAt: 'asc' },
         ],
     },
-    partOrders: { include: { catalogPart: true } },
+    partOrders: {
+        include: PartOrderWithRelations,
+        orderBy: [
+            { createdAt: 'desc' },
+        ],
+    },
 } satisfies Prisma.RepairRequestInclude;
 
 type PrismaRepairRequestWithRelationsType = Prisma.RepairRequestGetPayload<{
