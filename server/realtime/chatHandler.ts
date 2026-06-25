@@ -12,7 +12,7 @@ import {
     getUserRoomName,
     loadRecentChatMessages,
     markNotificationsAsReadForRoom,
-} from '~~/server/utils/backend/chat';
+} from './chat';
 import type {
     ChatJoinPayload,
     ChatSendPayload,
@@ -156,9 +156,8 @@ export function registerChatSocketHandlers(io: AppServer, socket: AppSocket) {
             activeInRoomUserIds,
         );
 
-        await Promise.all(Array.from(new Set(createdNotifications.map(item => item.userId))).map(async userId => {
-            await emitNotificationBadgeForUser(io, userId);
-        }));
+        const notifiedUserIds = [...new Set(createdNotifications.map(n => n.userId))];
+        await Promise.all(notifiedUserIds.map(userId => emitNotificationBadgeForUser(io, userId)));
 
         ack({
             ok: true,

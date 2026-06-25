@@ -1,4 +1,4 @@
-import { redisClient } from './redis';
+import { redisClient } from '../cache/redis';
 
 interface RateLimitOptions {
     windowMs: number; // Time window in milliseconds

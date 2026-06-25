@@ -1,7 +1,7 @@
 import { RepairRequestStatus, RepairStatus, RepairWorkItemStatus } from '@prisma/client';
 
 import { createApiError } from '~~/server/utils/apiResponses';
-import { createNotification } from '~~/server/utils/backend/notificationCenter';
+import { createNotification } from '~~/server/realtime/notifications';
 import { prisma } from '~~/server/utils/prisma';
 
 const REPAIR_STATUS_PROGRESS_ORDER: Partial<Record<RepairStatus, number>> = {

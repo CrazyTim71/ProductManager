@@ -2,7 +2,7 @@ import { RepairRequestStatus, RepairStatus } from '@prisma/client';
 import { z } from 'zod';
 
 import { createApiError } from '~~/server/utils/apiResponses';
-import { createNotification } from '~~/server/utils/backend/notificationCenter';
+import { createNotification } from '~~/server/realtime/notifications';
 import { setRepairStatus } from '~~/server/utils/backend/repairStatus';
 
 const repairStatusSchema = z.object({

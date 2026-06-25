@@ -1,7 +1,7 @@
 import { NotificationStatus } from '@prisma/client';
 
 import { createApiError } from '~~/server/utils/apiResponses';
-import { emitNotificationBadgeForUser } from '~~/server/utils/backend/notificationCenter';
+import { emitNotificationBadgeForUser } from '~~/server/realtime/notifications';
 
 export default defineEventHandler(async event => {
     const notificationId = event.context.params?.id;

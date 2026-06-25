@@ -2,7 +2,7 @@ import { NotificationStatus } from '@prisma/client';
 
 import { sendNotificationDigestEmail } from '~~/server/utils/mail';
 import { socketServer } from '~~/server/plugins/socket.io.server';
-import { getUnreadNotificationCount, getUserRoomName } from '~~/server/utils/backend/chat';
+import { getUnreadNotificationCount, getUserRoomName } from './chat';
 import { prisma } from '~~/server/utils/prisma';
 
 export interface NotificationCreateInput {

@@ -1,7 +1,7 @@
 import { defineNitroPlugin } from 'nitropack/runtime';
 
-import { sendNotificationDigestEmails } from '~~/server/utils/backend/notificationCenter';
-import { redisClient } from '~~/server/utils/backend/redis';
+import { sendNotificationDigestEmails } from '~~/server/realtime/notifications';
+import { redisClient } from '~~/server/utils/cache/redis';
 import { getMailConfig } from '~~/server/utils/mail';
 
 function parseBoolean(value: string | undefined, fallback: boolean) {

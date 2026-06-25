@@ -5,7 +5,7 @@ import {
     ensureChannelParticipants,
     ensureMessageChannel,
     getChatRequestAccessRecord,
-} from '~~/server/utils/backend/chat';
+} from '~~/server/realtime/chat';
 
 export default defineEventHandler(async event => {
     const requestId = event.context.params?.id;

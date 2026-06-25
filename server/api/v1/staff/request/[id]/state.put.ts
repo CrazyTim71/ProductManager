@@ -2,7 +2,7 @@ import { RepairRequestStatus, RepairWorkItemStatus } from '@prisma/client';
 import { z } from 'zod';
 
 import { createApiError } from '~~/server/utils/apiResponses';
-import { createNotification } from '~~/server/utils/backend/notificationCenter';
+import { createNotification } from '~~/server/realtime/notifications';
 
 const requestStateSchema = z.object({
     status: z.enum([

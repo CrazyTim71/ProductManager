@@ -1,7 +1,7 @@
 import { crud } from '../../../../utils/backend/crud';
 import { repairDeviceCreateSchema } from '~~/server/utils/backend/validation';
 import { RepairDeviceWithRelations } from '~~/types/req';
-import { createNotification } from '~~/server/utils/backend/notificationCenter';
+import { createNotification } from '~~/server/realtime/notifications';
 import { sendRequestAcceptedEmail } from '~~/server/utils/mail';
 import { createApiError } from '~~/server/utils/apiResponses';
 

@@ -1,5 +1,5 @@
 import { createApiError } from '~~/server/utils/apiResponses';
-import { emitNotificationBadgeForUser } from '~~/server/utils/backend/notificationCenter';
+import { emitNotificationBadgeForUser } from '~~/server/realtime/notifications';
 import { NotificationStatus } from '@prisma/client';
 
 export default defineEventHandler(async event => {

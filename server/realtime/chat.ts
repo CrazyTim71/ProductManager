@@ -1,6 +1,6 @@
 import { NotificationStatus, UserRole } from '@prisma/client';
 
-import { createNotificationsForUsers } from '~~/server/utils/backend/notificationCenter';
+import { createNotificationsForUsers } from './notifications';
 import { prisma } from '~~/server/utils/prisma';
 import type { UserSession } from '~~/types/data';
 import type { ChatMessage } from '~~/types/socket';

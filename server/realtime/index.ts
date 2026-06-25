@@ -1,8 +1,8 @@
 import type { Socket, Server } from 'socket.io';
 
-import { parseSocketCookie } from '../utils/auth';
+import { parseSocketCookie } from '~~/server/utils/auth';
 import { registerChatSocketHandlers } from './chatHandler';
-import { getUserRoomName } from '~~/server/utils/backend/chat';
+import { getUserRoomName } from './chat';
 import type {
     ClientToServerEvents,
     ServerToClientEvents,

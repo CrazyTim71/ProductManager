@@ -1,9 +1,9 @@
-import type { Decimal } from '@prisma/client/runtime/library';
-
 import type { PartOrderWithRelationsType, RepairRequestWithRelationsType } from '~~/types/req';
 import type { RepairSavingsSummary } from '~~/types/config';
 
-function toNumber(value: Decimal | number | string | null | undefined) {
+type DecimalLike = { toString(): string };
+
+function toNumber(value: DecimalLike | number | string | null | undefined) {
     if (typeof value === 'number') {
         return value;
     }

@@ -8,3 +8,4 @@ data
 .DS_Store
 tsconfig.client.tsbuildinfo
 bun-debug.log*
+graphify-out

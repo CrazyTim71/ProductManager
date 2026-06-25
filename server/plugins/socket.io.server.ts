@@ -3,7 +3,7 @@ import { defineNitroPlugin } from 'nitropack/runtime';
 import { Server as Engine } from 'engine.io';
 import { Server } from 'socket.io';
 import { defineEventHandler } from 'h3';
-import { initSocket } from '../socket.io';
+import { initSocket } from '../realtime';
 import type { ClientToServerEvents, ServerToClientEvents, SocketData } from '~~/types/socket';
 
 export let socketServer: Server<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>;

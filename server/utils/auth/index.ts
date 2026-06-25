@@ -5,7 +5,7 @@ import type { User } from '@prisma/client';
 import { createToken } from '../crypto';
 import type { UserSession } from '~~/types/data';
 import type { Socket } from 'socket.io';
-import { getRedisSync } from '~~/server/utils/backend/redis';
+import { getRedisSync } from '~~/server/utils/cache/redis';
 import { UserRole } from '@prisma/client';
 import cookie from 'cookie';
 import type { ClientToServerEvents, ServerToClientEvents, SocketData } from '~~/types/socket';

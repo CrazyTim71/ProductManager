@@ -22,7 +22,7 @@ defineSlots<{ default?: () => string }>();
 
 const color = defineModel<string>({
     type: String,
-    default: () => [],
+    default: () => '',
 });
 </script>
 
