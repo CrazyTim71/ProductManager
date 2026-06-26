@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.0.4-alpha
+
+### Reparaturverlauf-Timeline
+- Neue `RepairTimeline`-Komponente: Gantt-Darstellung der Reparaturphasen mit Verweildauer pro Status
+- Laufende Phase wird live hochgezählt (pulsierender Balken, Minuten-Tick)
+- Auf der Staff-Anfragendetailseite immer sichtbar
+- Auf der Kunden-Anfragenseite nur, wenn ein Admin „Reparaturverlauf für Kunden" aktiviert
+
+### Admin-Konfiguration (neu strukturiert)
+- Wiederverwendbare `SettingsSection`- und `SettingsRow`-Komponenten ersetzen den monolithischen Seitenaufbau
+- Abschnitte: Kosten & Abrechnung, Sichtbarkeit, Demo-Modus
+- Neuer Schalter „Reparaturverlauf für Kunden" (`showTimelineToCustomer`)
+
+### Demo-Modus
+- Admin-Schalter erzeugt einen Demo-User (`demo` / `demo`) mit 5 Beispiel-Aufträgen in verschiedenen Reparaturphasen
+- Deaktivieren entfernt alle Demo-Daten (Aufträge, Katalogteile) und deaktiviert den User vollständig
+- Alternativ per `DEMO_MODE`-Umgebungsvariable beim Start steuerbar
+- Hinweisbanner auf der Login- und Konfigurationsseite, solange Demo aktiv ist
+- Seed datengetrieben und typsicher aufgebaut (`seedWorkItems` / `seedStatusHistory`, keine impliziten `any`)
+
+### Status-Benachrichtigungen per E-Mail
+- Eigene E-Mail-Vorlagen für „Gerät empfangen" (RECEIVED) und „Gerät unterwegs" (ON_THE_WAY_TO_CUSTOMER)
+- Wird eine Status-E-Mail versendet, überspringt die zugehörige In-App-Benachrichtigung den Digest (`skipDigest`)
+- Auch die Annahme-Mail des Geräts läuft jetzt ohne doppelten Digest
+
+### Benachrichtigungs-Panel
+- Scrollbare Liste mit fixiertem Header und eigener Trennlinie
+
+### Bugfixes & Code-Qualität
+- Tippfehler `vartorgba` → `varToRgba` behoben (Platzhalterfarbe in `InputText` / `TextArea` wurde nicht berechnet)
+- Timer-Leak in der Timeline behoben (`onUnmounted` korrekt auf Setup-Ebene registriert)
+- „Mark Complete" / „Reject" / „Cancel" werden bei bereits abgeschlossenen Anfragen ausgeblendet
+- Dropdown-Menü `z-index` erhöht, damit es über der Savings-Tile liegt
+- Duplizierte Status-Notify-Logik in `repairStatus.ts` zu einem gemeinsamen Helper zusammengefasst
+- `appConfigUpdateSchema` bleibt `.strict()` (lehnt unbekannte Felder weiterhin ab)
+- `word-break: break-word` → `overflow-wrap: break-word` (deprecated-Keyword entfernt)
+
+---
+
 ## v0.0.3
 
 ### Reparaturwert-Tile

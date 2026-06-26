@@ -16,6 +16,8 @@ ProductManager bildet den kompletten Weg einer Reparaturanfrage ab: vom ersten K
 - In-App-Benachrichtigungen mit Badge-Zähler (als gelesen markieren, löschen)
 - Reparaturwert-Tile: Gegenüberstellung Reparaturkosten (grün) vs. Neukaufwert (gelb)
 - Reparatur-Graph der Arbeitsschritte in Lesansicht
+- Reparaturverlauf-Timeline (Gantt) mit Verweildauer pro Status, sofern vom Admin freigegeben
+- Status-E-Mails bei Empfang und Versand des Geräts
 
 ### Staff-Bereich
 - Übersicht und Detailansicht aller Reparaturanfragen
@@ -32,19 +34,20 @@ ProductManager bildet den kompletten Weg einer Reparaturanfrage ab: vom ersten K
 - Reparaturstatus-Phasen setzen (RECEIVED → IN_DIAGNOSIS → WAITING_FOR_PARTS → IN_REPAIR → IN_QA → IN_OUTGOING → ...)
 - Chat mit Kunden
 - Verlauf / Archiv abgeschlossener Aufträge
-- Reparaturwert-Tile
+- Reparaturwert-Tile und Reparaturverlauf-Timeline (Gantt)
 
 ### Admin-Bereich (Obermenge von Staff)
 - Gerätekatalog verwalten (Geräte, Marken, Kategorien)
 - Arbeitsschritttypen verwalten
 - Ersatzteilkatalog verwalten (Name, Hersteller, SKU, Einkaufs- und Verkaufspreis)
-- Systemkonfiguration (Stundensatz für Arbeitskostenberechnung)
+- Systemkonfiguration (Stundensatz, Reparaturverlauf für Kunden ein-/ausblenden)
+- Demo-Modus: Beispieldaten und Demo-User (`demo` / `demo`) per Schalter erzeugen bzw. entfernen
 
 ### Echtzeit & Hintergrund
 - Socket.IO für Chat-Nachrichten und Benachrichtigungs-Badges
 - Automatische Zustandssynchronisation (Anfragestatus aus Arbeitsschritt-Completion)
 - Benachrichtigungs-Digest per E-Mail (konfigurierbar)
-- E-Mails: Kontobestätigung, Passwort-Reset, Anfrage-Annahme
+- E-Mails: Kontobestätigung, Passwort-Reset, Anfrage-Annahme, Gerät empfangen, Gerät unterwegs
 
 ### Sicherheit & Infrastruktur
 - JWT-Sessions in Redis (kein DB-Session-Store)
@@ -54,7 +57,6 @@ ProductManager bildet den kompletten Weg einer Reparaturanfrage ab: vom ersten K
 
 ## Geplante Erweiterungen
 
-- 🕒 Timeline mit der Zeit, die ein Auftrag in jedem Status verbracht hat
 - 📦 Warteschlange mit geschätzter Restzeit auf Basis der aktuellen Auslastung
 - 📊 Statistik- und Graph-Ansichten für Gerätetypen, Reparaturarten und Team-Auswertung
 

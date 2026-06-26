@@ -51,6 +51,10 @@ Das Team setzt den physischen Gerätestatus manuell:
 | DELIVERED | Zugestellt |
 | ARCHIVED | Archiviert |
 
+Bei jedem Statuswechsel erhält der Kunde eine In-App-Benachrichtigung. Für **RECEIVED** („Gerät empfangen") und **ON_THE_WAY_TO_CUSTOMER** („Gerät unterwegs") wird zusätzlich eine eigene E-Mail versendet; die zugehörige In-App-Benachrichtigung überspringt dann den Sammel-Digest.
+
+Der gesamte Phasenverlauf wird mit Verweildauer in einer Gantt-Timeline dargestellt — für Staff immer, für Kunden nur, wenn ein Admin dies in der Konfiguration freigegeben hat.
+
 ## 7. Arbeitsschritte (Work Items)
 
 Pro Anfrage werden Arbeitsschritte im Reparatur-Graph dokumentiert:

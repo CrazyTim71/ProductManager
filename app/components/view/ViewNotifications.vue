@@ -239,6 +239,7 @@ function formatTime(value: string) {
         gap: 8px;
         align-items: center;
         justify-content: space-between;
+
         padding: 12px 12px 10px;
         border-bottom: 1px solid $darkgray700;
     }
@@ -254,6 +255,7 @@ function formatTime(value: string) {
         display: flex;
         flex-direction: column;
         gap: 6px;
+
         padding: 10px 12px 12px;
     }
 
@@ -302,7 +304,7 @@ function formatTime(value: string) {
     &_body {
         font-size: 12px;
         color: $typographyPrimary;
-        word-break: break-word;
+        overflow-wrap: break-word;
         white-space: normal;
     }
 

@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Code standards
+
+These rules are mandatory for every change in this repo:
+
+- **No monolithic code.** Keep files and functions small and focused. Extract repeated logic into shared helpers/composables — never copy a pattern across route or page files. If you write the same block twice, factor it out (see `crud()`, `useAdminEdit`, `seedWorkItems`/`seedStatusHistory`).
+- **Fully type-safe.** No `any` and no `unknown` in application code. Avoid constructs that silently produce `any` (e.g. untyped `Object.fromEntries`) — use typed `Map`s or explicit generics instead. `npx tsc --noEmit` must pass.
+- **Component-first UI.** Build small, reusable, self-contained components (e.g. `SettingsSection`, `SettingsRow`, `RepairTimeline`) instead of large page templates. Pages compose components; components stay focused and readable.
+- **Linting must succeed.** `bun run lint` (stylelint + eslint, `--max-warnings=0`) must pass with zero warnings before any commit. Run `bun run lint:fix` for auto-fixable issues.
+- **Changelog + docs.** Every feature-level change updates `public/CHANGELOG.md` (German, newest version on top) and the relevant files under `docs/` and `README.md`.
+
 ## Commands
 
 ```bash

@@ -171,7 +171,7 @@ defineExpose({
             }
 
             &::placeholder {
-                color: vartorgba('lightgray150', 0.5);
+                color: varToRgba('lightgray150', 0.5);
                 opacity: 1
             }
         }

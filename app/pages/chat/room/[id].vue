@@ -220,7 +220,7 @@ function formatTimestamp(value: string) {
         }
 
         &-content {
-            word-break: break-word;
+            overflow-wrap: break-word;
             white-space: pre-wrap;
         }
     }

@@ -28,6 +28,8 @@ Dieses Dokument beschreibt den aktuellen Implementierungsstand aller Module.
 | Anfragestatus einsehen | ✅ |
 | Reparatur-Graph (Arbeitsschritte, lesend) | ✅ |
 | Reparaturwert vs. Neukaufwert (Savings-Tile) | ✅ |
+| Reparaturverlauf-Timeline (wenn vom Admin freigegeben) | ✅ |
+| Status-E-Mail bei Empfang & Versand des Geräts | ✅ |
 | Echtzeit-Chat pro Anfrage | ✅ |
 | In-App-Benachrichtigungen mit Badge | ✅ |
 | Benachrichtigungen als gelesen markieren / löschen | ✅ |
@@ -79,6 +81,7 @@ RECEIVED → IN_DIAGNOSIS → WAITING_FOR_PARTS → IN_REPAIR → IN_QA → IN_O
 |---|---|
 | Chat mit Kunden | ✅ |
 | Reparaturwert-Tile (Kosten vs. Neukauf) | ✅ |
+| Reparaturverlauf-Timeline (Gantt, Verweildauer pro Status) | ✅ |
 
 ---
 
@@ -92,6 +95,8 @@ RECEIVED → IN_DIAGNOSIS → WAITING_FOR_PARTS → IN_REPAIR → IN_QA → IN_O
 | Arbeitsschritttypen (CRUD) | ✅ |
 | Ersatzteilkatalog (CRUD) | ✅ |
 | Systemkonfiguration (Stundensatz) | ✅ |
+| Reparaturverlauf für Kunden ein-/ausblenden | ✅ |
+| Demo-Modus (Beispieldaten seeden / entfernen) | ✅ |
 
 ---
 
@@ -115,8 +120,29 @@ Wird auf der Kunden-Anfragenseite und der Staff-Anfragendetailseite angezeigt.
 
 ---
 
+## Reparaturverlauf-Timeline
+
+Die `RepairTimeline`-Komponente stellt die durchlaufenen Reparaturphasen als Gantt-Diagramm dar:
+- Pro Status ein Balken, dessen Breite die Verweildauer abbildet
+- Die laufende Phase wird live hochgezählt (pulsierender Balken, Minuten-Tick)
+- Quelle ist die `statusHistory` der Anfrage inkl. der ausführenden Person
+
+Sichtbarkeit:
+- **Staff**: immer auf der Anfragendetailseite
+- **Kunde**: nur, wenn ein Admin `Reparaturverlauf für Kunden` (`showTimelineToCustomer`) aktiviert hat
+
+---
+
+## Demo-Modus
+
+Über den Admin-Schalter `Demo aktivieren` (oder die `DEMO_MODE`-Umgebungsvariable) lassen sich Beispieldaten erzeugen:
+- Demo-User `demo` / `demo`
+- 5 Beispiel-Aufträge in verschiedenen Reparaturphasen inkl. Statusverlauf, Arbeitsschritten und Teilebestellungen
+- Beim Deaktivieren werden alle Demo-Daten und der User vollständig entfernt
+
+---
+
 ## Geplante Erweiterungen
 
-- 🕒 Timeline mit Verweildauer pro Status
 - 📦 Queue mit geschätzter Restzeit
 - 📊 Statistiken: Gerätetypen, häufige Defekte, Team-Auswertung
