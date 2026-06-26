@@ -60,6 +60,8 @@
 </template>
 
 <script setup lang="ts">
+import { ToastMode } from '~~/types/toast';
+
 interface AdminConfigResponse {
     id: string;
     hourlyRate: number | string;
@@ -100,7 +102,7 @@ async function save() {
         showToast({ message: 'Konfiguration gespeichert' });
     }
     catch {
-        showToast({ message: 'Fehler beim Speichern', mode: 'Error' });
+        showToast({ message: 'Fehler beim Speichern', mode: ToastMode.Error });
     }
     finally {
         demoSaving.value = false;
