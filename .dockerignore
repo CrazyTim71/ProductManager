@@ -9,3 +9,15 @@ data
 tsconfig.client.tsbuildinfo
 bun-debug.log*
 graphify-out
+.github
+.devcontainer
+.agents
+.cache
+.claude
+.codex
+.impeccable
+.nuxt
+PRODUCT.md
+skills-lock.json
+DESIGN.md
+CLAUDE.md

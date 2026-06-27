@@ -1,0 +1,8 @@
+{
+  "framework": "nuxt",
+  "files": ["app/app.vue"],
+  "insertBefore": "</template>",
+  "commentSyntax": "html",
+  "devPort": 3000,
+  "cspChecked": true
+}
