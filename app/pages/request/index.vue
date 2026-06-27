@@ -10,7 +10,7 @@
             <div class="req-details">
                 {{ r.deviceName }} / {{ r.deviceModel }} / {{ r.deviceBrand }}
             </div>
-            <ui-labeled-text :value="r.suspectedIssue">Suspected issue</ui-labeled-text>
+            <ui-labeled-text :value="r.suspectedIssue">Vermutete Ursache</ui-labeled-text>
             <ui-button :href="`/request/${ r.id }`">Details</ui-button>
         </div>
         <common-box v-if="req?.length === 0">

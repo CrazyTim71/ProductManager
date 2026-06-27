@@ -25,7 +25,7 @@
             <div class="step-phase-rail"/>
             <div class="step-phase-groups">
                 <div
-                    v-for="orderGroup in phase.orderGroups"
+                    v-for="(orderGroup, groupIndex) in phase.orderGroups"
                     :key="orderGroup.orderIndex"
                     class="step-phase-order-group"
                     :class="{ 'step-phase-order-group--parallel': orderGroup.items.length > 1 }"
@@ -38,7 +38,10 @@
                             v-for="item in orderGroup.items"
                             :key="item.id"
                         >
-                            <slot :item="item"/>
+                            <slot
+                                :index="groupIndex"
+                                :item="item"
+                            />
                         </template>
                     </div>
                 </div>
@@ -83,7 +86,7 @@ const emit = defineEmits({
 });
 
 defineSlots<{
-    default(props: { item: T }): void;
+    default(props: { index: number; item: T }): void;
 }>();
 </script>
 

@@ -29,16 +29,10 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             hide: !store.me?.loggedIn,
         },
         {
-            text: 'Staff',
-            icon: 'material-symbols:computer',
+            text: 'History',
+            icon: 'material-symbols:history',
             hide: !(store.me?.isStaff || store.me?.isAdmin),
-            children: [
-                {
-                    text: 'History',
-                    path: '/staff/history',
-                    icon: 'material-symbols:history',
-                },
-            ],
+            path: '/staff/history',
         },
         {
             text: 'Admin',

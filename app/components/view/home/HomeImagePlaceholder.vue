@@ -1,8 +1,5 @@
 <template>
-    <article
-        class="home-image-placeholder"
-        data-reveal
-    >
+    <article class="home-image-placeholder">
         <div class="home-image-placeholder_frame">
             <div class="home-image-placeholder_glow"/>
             <div class="home-image-placeholder_label">{{ label }}</div>

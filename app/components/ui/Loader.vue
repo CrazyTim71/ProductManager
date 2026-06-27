@@ -1,7 +1,7 @@
 <template>
     <div
         class="loading-screen"
-        :class="smol ? 'loading-screen-smol' : ''"
+        :class="small ? 'loading-screen-smol' : ''"
     >
         <div class="loader"/>
     </div>
@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 defineProps({
-    smol: {
+    small: {
         type: Boolean,
     },
 });

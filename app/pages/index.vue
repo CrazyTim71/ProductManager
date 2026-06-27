@@ -29,8 +29,8 @@
                     class="landing_subtitle"
                     data-hero-item
                 >
-                    ProductManager verbindet Kundenkommunikation, Reparatur-Workflow und Benachrichtigungen in einem zentralen Ablauf.
-                    So sieht jede beteiligte Person sofort, was als Nächstes wichtig ist.
+                    ProductManager verbindet Kundenkommunikation, Reparaturverlauf und Benachrichtigungen in einem einzigen Ablauf —
+                    so sehen Mitarbeiter und Kunden sofort, was als Nächstes dran ist.
                 </p>
                 <div
                     class="landing_actions"
@@ -43,17 +43,24 @@
                         Konto erstellen
                     </ui-button>
                     <ui-button
-                        v-else
+                        v-else-if="!store.me.isAdmin && !store.me.isStaff"
                         to="/request/new"
                     >
                         Auftrag anlegen
                     </ui-button>
                     <ui-button
-                        v-if="store.me?.loggedIn"
+                        v-if="store.me?.loggedIn && !store.me.isAdmin && !store.me.isStaff"
                         to="/request"
                         type="secondary"
                     >
                         Meine Anfragen
+                    </ui-button>
+                    <ui-button
+                        v-if="store.me?.loggedIn && (store.me.isAdmin || store.me?.isStaff)"
+                        to="/staff/request"
+                        type="primary"
+                    >
+                        Anfragen
                     </ui-button>
                 </div>
             </common-neon-runner-container>
@@ -66,7 +73,7 @@
             >
                 <h3 class="landing_section-title">Funktionen auf einen Blick</h3>
                 <p class="landing_section-subtitle">
-                    Der Fokus liegt auf nachvollziehbaren Statuswechseln, direkter Kommunikation und sauberer Historie.
+                    Klare Statuswechsel, direkte Kommunikation und eine lückenlose Verlaufshistorie — alles an einem Ort.
                 </p>
                 <div class="landing_feature-grid">
                     <home-feature-card
@@ -86,7 +93,7 @@
                 data-reveal
                 tone="secondary"
             >
-                <h3 class="landing_section-title">Produktansichten</h3>
+                <h3 class="landing_section-title">Das Tool in Aktion</h3>
 
                 <div class="landing_preview-grid">
                     <home-image-placeholder
@@ -106,9 +113,9 @@
                 data-reveal
                 tone="warning"
             >
-                <h3 class="landing_section-title">Bereit für den nächsten Auftrag?</h3>
+                <h3 class="landing_section-title">Bereit loszulegen?</h3>
                 <p class="landing_section-subtitle">
-                    Lege eine neue Anfrage an oder springe direkt in die bestehende Historie, um den aktuellen Stand zu prüfen.
+                    Lege eine neue Anfrage an oder schau direkt in deine laufenden Aufträge.
                 </p>
                 <div class="landing_actions landing_actions--center">
                     <ui-button to="/request/new">Neue Anfrage starten</ui-button>
@@ -116,7 +123,7 @@
                         to="/staff/request"
                         type="secondary"
                     >
-                        Staff Übersicht
+                        Team-Übersicht
                     </ui-button>
                 </div>
             </common-neon-runner-container>
@@ -139,38 +146,38 @@ const features = [
         description: 'Von der Anfrage bis zur Auslieferung bleibt jeder Schritt dokumentiert und nachvollziehbar.',
         icon: 'material-symbols:route',
         points: [
-            'Statushistorie inklusive Zeitbezug',
+            'Statusverlauf mit genauen Zeitangaben',
             'Arbeitsschritte mit klaren Phasen',
             'Archiv für abgeschlossene Aufträge',
         ],
     },
     {
         title: 'Direkte Kommunikation',
-        description: 'Kunden und Staff arbeiten in einem Chatraum pro Auftrag zusammen, ohne Informationsverlust.',
+        description: 'Kunden und Mitarbeiter kommunizieren über einen dedizierten Chatraum pro Auftrag — der Gesprächsverlauf geht nie verloren.',
         icon: 'material-symbols:forum-rounded',
         points: [
-            'Live-Nachrichten via Socket.IO',
-            'Systemeinträge für Statuswechsel',
-            'Rollenbasierter Zugriff pro Raum',
+            'Echtzeit-Nachrichten ohne Seitenaktualisierung',
+            'Automatische Einträge bei Statuswechseln',
+            'Nur Beteiligte sehen den Chat zum jeweiligen Auftrag',
         ],
     },
     {
         title: 'Benachrichtigungen mit Kontext',
-        description: 'Neue Ereignisse werden sichtbar markiert und führen direkt zur passenden Detailansicht.',
+        description: 'Neue Ereignisse erscheinen sofort als Benachrichtigung und führen direkt zum zugehörigen Auftrag oder Chat.',
         icon: 'material-symbols:notifications-active-rounded',
         points: [
-            'Badge-Updates in Echtzeit',
-            'Mark all read und Delete read Aktionen',
-            'Direktes Routing zu Anfrage oder Chat',
+            'Sofortige Benachrichtigungen bei neuen Ereignissen',
+            'Alle Benachrichtigungen auf einmal als gelesen markieren',
+            'Direktlink zur betroffenen Anfrage oder Chat',
         ],
     },
 ] as const;
 
 const previews = [
     {
-        label: 'Staff',
-        title: 'Staff Cockpit',
-        caption: 'Queue, Prioritäten und offene Fälle auf einen Blick.',
+        label: 'Team',
+        title: 'Team-Cockpit',
+        caption: 'Offene Aufträge, Prioritäten und aktueller Stand — auf einen Blick.',
         image: '/docs/repair-request.png',
     },
     {
@@ -187,17 +194,21 @@ const previews = [
     },
 ] as const;
 
+let cleanupPointerMove: (() => void) | null = null;
+
 onMounted(() => {
     const root = landingRoot.value;
+    if (!root) return;
 
-    if (!root) {
-        return;
-    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const heroItems = root.querySelectorAll<HTMLElement>('[data-hero-item]');
-    const revealTargets = root.querySelectorAll<HTMLElement>('[data-reveal]');
+    const revealSections = root.querySelectorAll<HTMLElement>('[data-reveal]');
     const orbs = root.querySelectorAll<HTMLElement>('.neon-orb');
+    const featureGrid = root.querySelector<HTMLElement>('.landing_feature-grid');
+    const previewGrid = root.querySelector<HTMLElement>('.landing_preview-grid');
 
+    // Ambient orb float
     orbs.forEach((orb, index) => {
         animate(orb, {
             translateX: index % 2 === 0 ? 28 : -24,
@@ -211,6 +222,21 @@ onMounted(() => {
         });
     });
 
+    // Cursor-driven parallax layer — uses `translate` CSS individual property
+    // which composes with animejs's `transform` without conflict
+    const handlePointerMove = (e: PointerEvent) => {
+        const cx = e.clientX / window.innerWidth - 0.5;
+        const cy = e.clientY / window.innerHeight - 0.5;
+        orbs.forEach((orb, i) => {
+            const depth = (i + 1) * 14;
+            orb.style.setProperty('--px', `${ cx * depth }px`);
+            orb.style.setProperty('--py', `${ cy * depth * 0.65 }px`);
+        });
+    };
+    root.addEventListener('pointermove', handlePointerMove, { passive: true });
+    cleanupPointerMove = () => root.removeEventListener('pointermove', handlePointerMove);
+
+    // Hero entrance
     animate(heroItems, {
         opacity: [0, 1],
         translateY: [26, 0],
@@ -219,28 +245,63 @@ onMounted(() => {
         ease: 'outExpo',
     });
 
-    const observer = new IntersectionObserver(entries => {
+    // Section-level reveals
+    const sectionObserver = new IntersectionObserver(entries => {
         entries.forEach(entry => {
-            if (!entry.isIntersecting) {
-                return;
-            }
-
+            if (!entry.isIntersecting) return;
             animate(entry.target as HTMLElement, {
                 opacity: [0, 1],
                 translateY: [34, 0],
                 duration: 760,
                 ease: 'outExpo',
             });
-
-            observer.unobserve(entry.target);
+            sectionObserver.unobserve(entry.target);
         });
-    }, {
-        threshold: 0.25,
-    });
+    }, { threshold: 0.15 });
+    revealSections.forEach(target => sectionObserver.observe(target));
 
-    revealTargets.forEach(target => {
-        observer.observe(target);
-    });
+    // Feature card stagger — fires when grid enters viewport, staggers children
+    if (featureGrid) {
+        const cards = featureGrid.querySelectorAll<HTMLElement>('.home-feature-card');
+        const cardObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                animate(cards, {
+                    opacity: [0, 1],
+                    translateY: [18, 0],
+                    duration: 640,
+                    delay: stagger(100, { start: 200 }),
+                    ease: 'outExpo',
+                });
+                cardObserver.disconnect();
+            });
+        }, { threshold: 0.1 });
+        cardObserver.observe(featureGrid);
+    }
+
+    // Preview item stagger — scale + translate for distinct choreography
+    if (previewGrid) {
+        const previewEls = previewGrid.querySelectorAll<HTMLElement>('.home-image-placeholder');
+        const previewObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                animate(previewEls, {
+                    opacity: [0, 1],
+                    translateY: [22, 0],
+                    scale: [0.96, 1],
+                    duration: 680,
+                    delay: stagger(110, { start: 180 }),
+                    ease: 'outExpo',
+                });
+                previewObserver.disconnect();
+            });
+        }, { threshold: 0.1 });
+        previewObserver.observe(previewGrid);
+    }
+});
+
+onUnmounted(() => {
+    cleanupPointerMove?.();
 });
 </script>
 
@@ -257,7 +318,6 @@ onMounted(() => {
     max-width: 90vw;
     margin: 0 auto;
 
-
     &_background {
         pointer-events: none;
         position: absolute;
@@ -267,6 +327,7 @@ onMounted(() => {
 
     &_orb {
         position: absolute;
+        translate: var(--px, 0) var(--py, 0);
         border-radius: 50%;
         filter: blur(18px);
 
@@ -299,6 +360,10 @@ onMounted(() => {
 
             background: radial-gradient(circle at 30% 30%, varToRgba(secondary400, 0.32), varToRgba(secondary400, 0));
         }
+
+        @media (pointer: fine) {
+            transition: translate 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
     }
 
     &_hero,
@@ -310,18 +375,6 @@ onMounted(() => {
         display: flex;
         flex-direction: column;
         gap: 14px;
-        opacity: 1;
-    }
-
-    &_section {
-        opacity: 0;
-    }
-
-    &_badge,
-    &_title,
-    &_subtitle,
-    &_actions {
-        opacity: 0;
     }
 
     &_badge {
@@ -353,6 +406,7 @@ onMounted(() => {
         font-size: 16px;
         line-height: 1.6;
         color: $lightgray200;
+        text-wrap: pretty;
     }
 
     &_actions {
@@ -383,12 +437,14 @@ onMounted(() => {
         margin: 0;
         font-size: 28px;
         color: $lightgray0;
+        text-wrap: balance;
     }
 
     &_section-subtitle {
         margin: 0;
         line-height: 1.55;
         color: $lightgray300;
+        text-wrap: pretty;
     }
 
     &_feature-grid,
@@ -403,6 +459,31 @@ onMounted(() => {
 
     &_preview-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        &_section {
+            opacity: 0;
+        }
+
+        &_badge,
+        &_title,
+        &_subtitle,
+        &_actions {
+            opacity: 0;
+        }
+
+        &_feature-grid :deep(.home-feature-card),
+        &_preview-grid :deep(.home-image-placeholder) {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &_orb {
+            translate: none;
+            transition: none;
+        }
     }
 
     @include mobile {
@@ -421,22 +502,6 @@ onMounted(() => {
         &_preview-grid {
             grid-template-columns: 1fr;
         }
-    }
-}
-
-.neon-panel {
-    backdrop-filter: blur(5px);
-}
-
-@keyframes neon-corner-pulse {
-    from {
-        transform: scale(1);
-        opacity: 0.45;
-    }
-
-    to {
-        transform: scale(1.02);
-        opacity: 0.95;
     }
 }
 </style>

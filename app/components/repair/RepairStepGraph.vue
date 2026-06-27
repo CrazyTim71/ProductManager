@@ -2,7 +2,7 @@
     <div class="step-graph">
         <div class="step-graph-header">
             <div class="step-graph-copy">
-                <h2>Repair flow</h2>
+                <h2>Arbeitsschritte</h2>
             </div>
 
             <div class="step-graph-actions">
@@ -10,13 +10,13 @@
                     v-if="editable && request.status === 'ACCEPTED'"
                     @click="initializeDefaultSteps"
                 >
-                    {{ workItems.length === 0 ? 'Initialize default steps' : 'Reset defaults' }}
+                    {{ workItems.length === 0 ? 'Standardschritte anlegen' : 'Zurücksetzen' }}
                 </ui-button>
                 <ui-button
                     v-if="editable"
                     @click="openCreate(0)"
                 >
-                    Add step
+                    Schritt hinzufügen
                 </ui-button>
                 <ui-button
                     v-if="!route.path.endsWith('/graph')"
@@ -39,57 +39,79 @@
 
         <div class="step-graph-overview">
             <div class="step-graph-stat">
-                <span class="step-graph-stat-value">{{ completedWorkItems }} / {{ workItems.length }}</span>
-                <span class="step-graph-stat-label">done</span>
+                <div class="step-graph-stat-value">
+                    <transition
+                        mode="out-in"
+                        name="stat-count"
+                    >
+                        <span
+                            :key="completedWorkItems"
+                            class="step-graph-stat-num"
+                        >{{ completedWorkItems }}</span>
+                    </transition>
+                    <span class="step-graph-stat-sep"> / {{ workItems.length }}</span>
+                </div>
+                <span class="step-graph-stat-label">erledigt</span>
             </div>
         </div>
 
-        <common-box v-if="workItems.length === 0">
-            <h3>No repair steps defined yet</h3>
-            <p v-if="editable">Initialize the default baseline steps or add the first custom node to start shaping the flow.</p>
-            <p v-else>Steps will appear here once staff defines them.</p>
-        </common-box>
+        <transition name="step-graph-fade">
+            <common-box v-if="workItems.length === 0">
+                <h3>Noch keine Schritte definiert</h3>
+                <p v-if="editable">Standardschritte anlegen oder den ersten Schritt manuell hinzufügen.</p>
+                <p v-else>Sobald das Team Schritte anlegt, werden sie hier angezeigt.</p>
+            </common-box>
+        </transition>
 
-        <repair-step-phase
-            v-for="phase in phases"
-            :key="phase.startOrder"
-            :editable="editable"
-            :phase="phase"
-            @add="openCreate"
+        <transition-group
+            appear
+            class="step-graph-phases"
+            name="phase-list"
+            tag="div"
         >
-            <template #default="{ item }">
-                <repair-work-item-card
-                    :editable="editable"
-                    :item="item"
-                    :part-orders="partOrders"
-                    @addPart="openPartPopup(item.id)"
-                    @changePartStatus="updatePartOrderStatus"
-                    @delete="deleteWorkItem(item)"
-                    @edit="openEdit(item)"
-                    @toggleDone="toggleWorkItemCompletion(item)"
-                    @toggleInProgress="toggleWorkItemInProgress(item)"
-                />
-            </template>
-        </repair-step-phase>
+            <repair-step-phase
+                v-for="(phase, i) in phases"
+                :key="phase.startOrder"
+                :editable="editable"
+                :phase="phase"
+                :style="{ '--phase-i': i }"
+                @add="openCreate"
+            >
+                <template #default="{ index, item }">
+                    <repair-work-item-card
+                        :editable="editable"
+                        :item="item"
+                        :part-orders="partOrders"
+                        :style="{ '--card-i': index }"
+                        @addPart="openPartPopup(item.id)"
+                        @changePartStatus="updatePartOrderStatus"
+                        @delete="deleteWorkItem(item)"
+                        @edit="openEdit(item)"
+                        @toggleDone="toggleWorkItemCompletion(item)"
+                        @toggleInProgress="toggleWorkItemInProgress(item)"
+                    />
+                </template>
+            </repair-step-phase>
+        </transition-group>
 
         <repair-work-item-editor
             v-if="editable"
             :default-order-index="editorDefaultOrderIndex"
             :is-visible="isEditorVisible"
             :item="editingItem"
-            :title="editingItem ? 'Edit step' : 'Create step'"
+            :title="editingItem ? 'Schritt bearbeiten' : 'Neuer Schritt'"
             @close="closeEditor"
             @save="saveWorkItem"
         />
 
         <common-popup
             :is-visible="isPartPopupVisible"
-            submit-text="Add part"
+            submit-text="Teil hinzufügen"
             @close="closePartPopup"
             @submit="createPartOrder"
         >
             <div class="step-graph-part-popup">
-                <h3>Add part to step</h3>
+                <h3>Ersatzteil hinzufügen</h3>
                 <common-selector
                     v-model="selectedCatalogPart"
                     one
@@ -102,10 +124,10 @@
                         {{ item.name }}
                     </template>
                 </common-selector>
-                <ui-input-number v-model="partQuantity">Quantity</ui-input-number>
-                <ui-input-text v-model="partSupplier">Supplier</ui-input-text>
-                <ui-input-number v-model="partEstimatedCost">Estimated Cost</ui-input-number>
-                <ui-text-area v-model="partNote">Note</ui-text-area>
+                <ui-input-number v-model="partQuantity">Menge</ui-input-number>
+                <ui-input-text v-model="partSupplier">Lieferant</ui-input-text>
+                <ui-input-number v-model="partEstimatedCost">Kalkulierter Preis</ui-input-number>
+                <ui-text-area v-model="partNote">Notiz</ui-text-area>
             </div>
         </common-popup>
     </div>
@@ -130,6 +152,8 @@ const props = defineProps({
         default: false,
     },
 });
+
+const emit = defineEmits<{ update: [] }>();
 
 const workItems = ref<RepairWorkItemWithRelationsType[]>([]);
 const partOrders = ref<PartOrderWithRelationsType[]>([]);
@@ -267,10 +291,11 @@ async function saveWorkItem(draft: RepairWorkItemDraft) {
     }
 
     closeEditor();
+    emit('update');
 }
 
 async function deleteWorkItem(item: RepairWorkItemWithRelationsType) {
-    const confirmed = confirm(`Delete ${ item.title }?`);
+    const confirmed = confirm(`„${ item.title }" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`);
 
     if (!confirmed) {
         return;
@@ -282,6 +307,7 @@ async function deleteWorkItem(item: RepairWorkItemWithRelationsType) {
 
     partOrders.value = partOrders.value.filter(po => po.workItemId !== item.id);
     removeLocalWorkItem(item.id);
+    emit('update');
 }
 
 async function toggleWorkItemCompletion(item: RepairWorkItemWithRelationsType) {
@@ -302,6 +328,7 @@ async function toggleWorkItemCompletion(item: RepairWorkItemWithRelationsType) {
     });
 
     upsertLocalWorkItem(response.data);
+    emit('update');
 }
 
 async function toggleWorkItemInProgress(item: RepairWorkItemWithRelationsType) {
@@ -322,6 +349,7 @@ async function toggleWorkItemInProgress(item: RepairWorkItemWithRelationsType) {
     });
 
     upsertLocalWorkItem(response.data);
+    emit('update');
 }
 
 async function initializeDefaultSteps() {
@@ -330,6 +358,7 @@ async function initializeDefaultSteps() {
     });
 
     workItems.value = [...response];
+    emit('update');
 }
 
 async function createPartOrder() {
@@ -354,6 +383,7 @@ async function createPartOrder() {
 
     upsertLocalPartOrder(response.data);
     closePartPopup();
+    emit('update');
 }
 
 async function updatePartOrderStatus(partId: string, status: PartOrderStatus) {
@@ -367,6 +397,7 @@ async function updatePartOrderStatus(partId: string, status: PartOrderStatus) {
     });
 
     upsertLocalPartOrder(response.data);
+    emit('update');
 }
 </script>
 
@@ -403,6 +434,12 @@ async function updatePartOrderStatus(partId: string, status: PartOrderStatus) {
         gap: 12px;
     }
 
+    &-phases {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
     &-stat {
         display: flex;
         flex-direction: column;
@@ -410,15 +447,22 @@ async function updatePartOrderStatus(partId: string, status: PartOrderStatus) {
 
         padding: 14px 16px;
         border: 1px solid $lightgray125;
-        border-radius: 16px;
+        border-radius: 8px;
 
         background: linear-gradient(180deg, rgb(255 255 255 / 4%), rgb(255 255 255 / 1%));
 
         &-value {
+            display: flex;
+            align-items: baseline;
+
             font-size: 22px;
             font-weight: 800;
             line-height: 1;
             color: $typographyPrimary;
+        }
+
+        &-num {
+            display: inline-block;
         }
 
         &-label {
@@ -467,6 +511,71 @@ async function updatePartOrderStatus(partId: string, status: PartOrderStatus) {
         flex-direction: column;
         gap: 12px;
         width: min(560px, 80vw);
+    }
+}
+
+// Phase list — enter/leave
+.phase-list-enter-active {
+    transition: opacity 350ms cubic-bezier(0.25, 1, 0.5, 1),
+        transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+    transition-delay: calc(var(--phase-i, 0) * 70ms);
+}
+
+.phase-list-leave-active {
+    transition: opacity 200ms ease-in;
+}
+
+.phase-list-enter-from {
+    transform: translateY(14px);
+    opacity: 0;
+}
+
+.phase-list-leave-to {
+    opacity: 0;
+}
+
+// Empty state fade
+.step-graph-fade-enter-active {
+    transition: opacity 200ms ease-out;
+}
+
+.step-graph-fade-leave-active {
+    transition: opacity 150ms ease-in;
+}
+
+.step-graph-fade-enter-from,
+.step-graph-fade-leave-to {
+    opacity: 0;
+}
+
+// Stat counter flip
+.stat-count-enter-active {
+    transition: opacity 150ms ease-out,
+        transform 150ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.stat-count-leave-active {
+    transition: opacity 100ms ease-in;
+}
+
+.stat-count-enter-from {
+    transform: translateY(6px);
+    opacity: 0;
+}
+
+.stat-count-leave-to {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .phase-list-enter-active,
+    .phase-list-leave-active,
+    .step-graph-fade-enter-active,
+    .step-graph-fade-leave-active,
+    .stat-count-enter-active,
+    .stat-count-leave-active {
+        transition-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
     }
 }
 </style>

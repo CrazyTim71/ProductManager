@@ -20,10 +20,10 @@ const props = defineProps({
 });
 
 const statusLabels: Record<RepairWorkItemStatus, string> = {
-    BLOCKED: 'Blocked',
-    DONE: 'Done',
-    IN_PROGRESS: 'In progress',
-    PENDING: 'Pending',
+    BLOCKED: 'Blockiert',
+    DONE: 'Erledigt',
+    IN_PROGRESS: 'In Bearbeitung',
+    PENDING: 'Ausstehend',
 };
 
 const label = computed(() => statusLabels[props.status]);
@@ -42,6 +42,9 @@ const label = computed(() => statusLabels[props.status]);
 
     background: $lightgray200;
 
+    transition: background-color 200ms cubic-bezier(0.25, 1, 0.5, 1),
+        color 200ms cubic-bezier(0.25, 1, 0.5, 1);
+
     &[data-status='DONE'] {
         background: $success600;
     }
@@ -56,6 +59,12 @@ const label = computed(() => statusLabels[props.status]);
 
     &[data-status='PENDING'] {
         background: $lightgray300;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .work-item-status {
+        transition: none;
     }
 }
 </style>

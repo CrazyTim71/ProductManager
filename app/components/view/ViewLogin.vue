@@ -23,7 +23,7 @@
         </div>
     </template>
     <template v-else>
-        <common-loader smol/>
+        <common-loader small/>
     </template>
 </template>
 

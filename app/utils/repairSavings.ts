@@ -27,18 +27,20 @@ export function calculatePartsCost(partOrders: PartOrderWithRelationsType[]) {
             return sum;
         }
 
+        const qty = partOrder.quantity;
+
         const actualCost = toNumber(partOrder.actualCost);
         if (actualCost > 0) {
-            return sum + actualCost;
+            return sum + (actualCost * qty);
         }
 
         const estimatedCost = toNumber(partOrder.estimatedCost);
         if (estimatedCost > 0) {
-            return sum + estimatedCost;
+            return sum + (estimatedCost * qty);
         }
 
         const unitCost = toNumber(partOrder.catalogPart?.unitCost);
-        return sum + (unitCost * partOrder.quantity);
+        return sum + (unitCost * qty);
     }, 0);
 }
 

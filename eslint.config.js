@@ -3,7 +3,7 @@ import StylisticPlugin from '@stylistic/eslint-plugin';
 
 export default withNuxt([
     {
-        ignores: ['db/**', 'dist/**', 'node_modules/**'],
+        ignores: ['db/**', 'dist/**', 'node_modules/**', '.github/**', '.impeccable/**', '.claude/**', '.agents/**'],
     },
     StylisticPlugin.configs['recommended-flat', 'disable-legacy'],
     {

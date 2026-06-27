@@ -1,7 +1,7 @@
 <template>
     <common-page
         v-if="repairReq && repairReq.customer"
-        :title="`Reperaturauftrag von ${ repairReq?.customer.displayName }`"
+        :title="`Reparaturauftrag von ${ repairReq?.customer.displayName }`"
     >
         <ui-status :status="displayStatus"/>
         <div class="request-savings">
@@ -15,11 +15,11 @@
         </div>
         <div class="request-container">
             <div class="request-customer">
-                <h2>Customer details</h2>
+                <h2>Kundendetails</h2>
                 {{ repairReq?.customer.displayName }} ({{ repairReq?.customer.username }}) /
                 {{ repairReq?.customer.email }}
                 <div class="request-assign">
-                    <h3>Assigned Staff</h3>
+                    <h3>Zugewiesener Mitarbeiter</h3>
                     <common-selector
                         v-model="selectedAssignedStaff"
                         one
@@ -40,104 +40,144 @@
                 >
                     <ui-button
                         v-if="repairReq.status !== RepairRequestStatus.COMPLETED"
+                        primary-color="primary500"
                         @click="setRequestState('COMPLETED')"
-                    >Mark Complete</ui-button>
-                    <ui-button
-                        v-if="repairReq.status !== RepairRequestStatus.COMPLETED"
-                        primary-color="error600"
-                        @click="setRequestState('REJECTED')"
                     >
-                        Reject
+                        Abschließen
                     </ui-button>
                     <ui-button
                         v-if="repairReq.status !== RepairRequestStatus.COMPLETED"
                         primary-color="error600"
-                        @click="setRequestState('CANCELLED')"
+                        @click="confirmAction = 'REJECTED'"
                     >
-                        Cancel
+                        Ablehnen
                     </ui-button>
+                    <ui-button
+                        v-if="repairReq.status !== RepairRequestStatus.COMPLETED"
+                        primary-color="error600"
+                        @click="confirmAction = 'CANCELLED'"
+                    >
+                        Stornieren
+                    </ui-button>
+                </div>
+                <div
+                    v-else-if="repairReq.workItems && repairReq.workItems.length > 0 && repairReq.status === RepairRequestStatus.ACCEPTED"
+                    class="request-state-hint"
+                >
+                    Alle Arbeitsschritte müssen abgeschlossen sein, bevor die Anfrage abgeschlossen werden kann.
                 </div>
                 <ui-button
                     v-if="canArchive"
-                    @click="archiveRequest()"
+                    @click="confirmAction = 'ARCHIVE'"
                 >
-                    Archive Request
+                    Anfrage archivieren
                 </ui-button>
+                <common-popup
+                    close-text="Abbrechen"
+                    :is-visible="confirmAction !== null"
+                    :submit-color="confirmAction === 'ARCHIVE' ? 'primary500' : 'error600'"
+                    :submit-text="confirmSubmitText"
+                    @close="confirmAction = null"
+                    @submit="executeConfirmedAction()"
+                >
+                    <p class="confirm-message">{{ confirmMessage }}</p>
+                </common-popup>
             </div>
             <div class="request-params">
-                <h2>Customer Notes</h2>
+                <h2>Kundennotizen</h2>
                 <labeled-text :value="repairReq?.subject">
-                    Subject
+                    Betreff
                 </labeled-text>
                 <labeled-text :value="repairReq?.deviceName">
-                    Geraetename
+                    Gerätename
                 </labeled-text>
                 <labeled-text :value="repairReq?.deviceBrand">
-                    Geraete Marke
+                    Gerätemarke
                 </labeled-text>
                 <labeled-text :value="repairReq?.deviceModel">
-                    Geraete Modell
+                    Gerätemodell
                 </labeled-text>
                 <labeled-text :value="repairReq?.problemDescription">
                     Problembeschreibung
                 </labeled-text>
-                <labeled-text :value="repairReq?.alreadyTried ">
-                    Hat versucht
+                <labeled-text :value="repairReq?.alreadyTried">
+                    Bereits versucht
                 </labeled-text>
-                <labeled-text :value="repairReq?.suspectedIssue ">
-                    Denkt Ursache ist
+                <labeled-text :value="repairReq?.suspectedIssue">
+                    Vermutete Ursache
                 </labeled-text>
                 <labeled-text :value="repairReq?.customerNotes">
                     Sonstiges
                 </labeled-text>
             </div>
             <div class="request-device">
-                <h2>Repair Device</h2>
+                <h2>Reparaturgerät</h2>
                 <div
                     v-if="!repairReq.device"
                     class="request-device-create"
                 >
-                    Noch kein Device erstellt
-                    <ui-button @click="isVisible = true">Create</ui-button>
-                    <common-popup
+                    Noch kein Gerät zugeordnet
+                    <ui-button @click="isVisible = true">Gerät zuordnen</ui-button>
+                    <repair-device-select-popup
                         :is-visible="isVisible"
                         @close="isVisible = false"
-                        @submit="onSubmit()"
-                    >
-                        <div class="request-device_popup-container">
-                            <div
-                                v-for="d in devices"
-                                :key="d.id"
-                                class="request-device_popup"
-                            >
-                                {{ d.name }}
-                                <ui-button @click="selectedDevice?.id === d.id ? selectedDevice = null : selectedDevice = d">{{ d.id === selectedDevice?.id ? 'Unselect' : 'Select' }}</ui-button>
-                            </div>
-                        </div>
-                    </common-popup>
+                        @select="onDeviceSelected"
+                    />
                 </div>
                 <div
                     v-else
                     class="request-device-container"
                 >
-                    <ui-input-text v-model="displayName">Display Name</ui-input-text>
-                    <ui-input-text v-model="serialNumber">Serial Number</ui-input-text>
-                    <ui-text-area v-model="notes">Notes</ui-text-area>
-                    <ui-button @click="saveRepairDevice()">Save</ui-button>
-                    <h3>Device</h3>
-                    <ui-labeled-text :value="repairDevice?.device?.name">Name</ui-labeled-text>
-                    <ui-labeled-text :value="repairDevice?.device?.deviceBrand.name">Brand</ui-labeled-text>
-                    <ui-labeled-text :value="(repairDevice?.device?.purchaseValue ?? '') as string">Neukaufwert</ui-labeled-text>
-                    <h3>Repair Status</h3>
-                    <ui-status :status="effectiveRepairStatus ?? repairReq.status"/>
-                    <div class="request-device-status-actions">
+                    <div class="request-device-section">
+                        <ui-input-text v-model="displayName">Anzeigename</ui-input-text>
+                        <ui-input-text v-model="serialNumber">Seriennummer</ui-input-text>
+                        <ui-text-area v-model="notes">Notizen</ui-text-area>
                         <ui-button
-                            v-for="statusAction in repairStatusActions"
-                            :key="statusAction"
-                            @click="setRepairStatus(statusAction)"
+                            :disabled="saveLoading"
+                            @click="saveRepairDevice()"
                         >
-                            {{ statusAction }}
+                            {{ saveLoading ? 'Wird gespeichert…' : 'Speichern' }}
                         </ui-button>
+                    </div>
+                    <div class="request-device-section">
+                        <h3>Gerät</h3>
+                        <ui-labeled-text :value="repairDevice?.device?.name">Name</ui-labeled-text>
+                        <ui-labeled-text :value="repairDevice?.device?.deviceBrand.name">Marke</ui-labeled-text>
+                        <ui-labeled-text :value="(repairDevice?.device?.purchaseValue ?? '') as string">Neukaufwert</ui-labeled-text>
+                    </div>
+                    <div class="request-device-section">
+                        <h3>Reparaturstatus</h3>
+                        <ui-status :status="effectiveRepairStatus ?? repairReq.status"/>
+                        <div class="request-device-status-actions">
+                            <ui-button
+                                v-if="primaryRepairStatusAction"
+                                primary-color="primary500"
+                                @click="setRepairStatus(primaryRepairStatusAction)"
+                            >
+                                {{ REPAIR_STATUS_LABELS[primaryRepairStatusAction] }}
+                            </ui-button>
+                            <button
+                                v-if="secondaryRepairStatusActions.length > 0"
+                                :aria-expanded="showMoreStatus"
+                                class="request-status-more-btn"
+                                type="button"
+                                @click="showMoreStatus = !showMoreStatus"
+                            >
+                                {{ showMoreStatus ? 'Weniger Optionen' : 'Weitere Status' }}
+                            </button>
+                            <div
+                                v-if="showMoreStatus"
+                                class="request-device-status-more"
+                            >
+                                <ui-button
+                                    v-for="statusAction in secondaryRepairStatusActions"
+                                    :key="statusAction"
+                                    @click="setRepairStatus(statusAction)"
+                                >
+                                    {{ REPAIR_STATUS_LABELS[statusAction] ?? statusAction }}
+                                </ui-button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -155,30 +195,33 @@
 <script lang="ts" setup>
 import { RepairRequestStatus, RepairStatus } from '@prisma/client';
 
-import type { Device } from '@prisma/client';
 import LabeledText from '~/components/ui/LabeledText.vue';
 import RepairSavingsTile from '~/components/repair/RepairSavingsTile.vue';
 import RepairTimeline from '~/components/repair/RepairTimeline.vue';
 import { calculateRepairSavings } from '~~/app/utils/repairSavings';
 import type { AppConfigResponse } from '~~/types/config';
 import type { RepairDeviceWithRelationsType, RepairRequestWithRelationsType } from '~~/types/req';
+import { ToastMode } from '~~/types/toast';
+import { useToastManager } from '~/composables/toastManager';
 
 const route = useRoute();
 const id = route.params.id as string;
 const isVisible = ref(false);
+const { showToast } = useToastManager();
 
 const displayName = ref('');
 const serialNumber = ref('');
 const notes = ref('');
-const selectedDevice: Ref<Device | null> = ref(null);
 const repairDevice = ref<RepairDeviceWithRelationsType | null>(null);
+const confirmAction = ref<'REJECTED' | 'CANCELLED' | 'ARCHIVE' | null>(null);
+const saveLoading = ref(false);
+const showMoreStatus = ref(false);
 
 type StaffUser = { id: string; name: string };
 const selectedAssignedStaff = ref<StaffUser[]>([]);
 const assignInitializing = ref(true);
 
 const { data: repairReq, refresh: refreshRepairReq } = useFetch<RepairRequestWithRelationsType>(`/api/v1/staff/request/${ id }`);
-const { data: devices } = useFetch<Device[]>('/api/v1/staff/device');
 const { data: config } = useFetch<AppConfigResponse>('/api/v1/user/config');
 const repairStatusOverride = ref<RepairStatus | null>(null);
 
@@ -242,6 +285,18 @@ const allWorkItemsDone = computed(() => {
 });
 const isArchived = computed(() => repairReq.value?.statusHistory?.some(item => item.status === RepairStatus.ARCHIVED) ?? false);
 const canArchive = computed(() => repairReq.value?.status === RepairRequestStatus.COMPLETED && !isArchived.value);
+
+const REPAIR_STATUS_SEQUENCE: RepairStatus[] = [
+    RepairStatus.RECEIVED,
+    RepairStatus.IN_DIAGNOSIS,
+    RepairStatus.WAITING_FOR_PARTS,
+    RepairStatus.IN_REPAIR,
+    RepairStatus.IN_QA,
+    RepairStatus.IN_OUTGOING,
+    RepairStatus.ON_THE_WAY_TO_CUSTOMER,
+    RepairStatus.DELIVERED,
+];
+
 const repairStatusActions = computed<RepairStatus[]>(() => {
     const actions: RepairStatus[] = [
         RepairStatus.RECEIVED,
@@ -263,13 +318,70 @@ const repairStatusActions = computed<RepairStatus[]>(() => {
     return actions.filter(status => status !== effectiveRepairStatus.value);
 });
 
+const primaryRepairStatusAction = computed<RepairStatus | null>(() => {
+    if (repairStatusActions.value.length === 0) return null;
+    const current = effectiveRepairStatus.value;
+    if (current === null) return repairStatusActions.value[0] ?? null;
+    const currentIdx = REPAIR_STATUS_SEQUENCE.indexOf(current);
+    if (currentIdx === -1) return repairStatusActions.value[0] ?? null;
+    for (let i = currentIdx + 1; i < REPAIR_STATUS_SEQUENCE.length; i++) {
+        const candidate = REPAIR_STATUS_SEQUENCE[i];
+        if (candidate && repairStatusActions.value.includes(candidate)) return candidate;
+    }
+    return repairStatusActions.value[0] ?? null;
+});
+
+const secondaryRepairStatusActions = computed<RepairStatus[]>(() => repairStatusActions.value.filter(s => s !== primaryRepairStatusAction.value));
+
+const REPAIR_STATUS_LABELS: Record<RepairStatus, string> = {
+    [RepairStatus.RECEIVED]: 'Empfangen',
+    [RepairStatus.IN_DIAGNOSIS]: 'Diagnose',
+    [RepairStatus.WAITING_FOR_PARTS]: 'Warte auf Teile',
+    [RepairStatus.IN_REPAIR]: 'In Reparatur',
+    [RepairStatus.IN_QA]: 'Qualitätsprüfung',
+    [RepairStatus.IN_OUTGOING]: 'Im Ausgang',
+    [RepairStatus.ON_THE_WAY_TO_CUSTOMER]: 'Unterwegs zum Kunden',
+    [RepairStatus.DELIVERED]: 'Zugestellt',
+    [RepairStatus.ARCHIVED]: 'Archiviert',
+    [RepairStatus.ON_THE_WAY_TO_SHOP]: 'Unterwegs',
+};
+
 const chatButtonText = computed(() => {
     if (repairReq.value?.status === RepairRequestStatus.WAITING_FOR_REVIEW) {
-        return 'Frag den Customer';
+        return 'Kunden fragen';
     }
 
     return 'Chat';
 });
+
+const confirmMessage = computed(() => {
+    const name = repairReq.value?.customer?.displayName ?? 'diesem Kunden';
+    if (confirmAction.value === 'REJECTED') {
+        return `Möchtest du die Reparaturanfrage von ${ name } dauerhaft ablehnen? Diese Aktion kann nicht rückgängig gemacht werden.`;
+    }
+    if (confirmAction.value === 'CANCELLED') {
+        return `Möchtest du die Reparaturanfrage von ${ name } dauerhaft stornieren? Diese Aktion kann nicht rückgängig gemacht werden.`;
+    }
+    if (confirmAction.value === 'ARCHIVE') {
+        return `Möchtest du diese Reparaturanfrage archivieren? Sie wird im Archiv gespeichert und aus der aktiven Liste entfernt.`;
+    }
+    return '';
+});
+
+const confirmSubmitText = computed(() => {
+    if (confirmAction.value === 'REJECTED') return 'Ablehnen';
+    if (confirmAction.value === 'CANCELLED') return 'Stornieren';
+    if (confirmAction.value === 'ARCHIVE') return 'Archivieren';
+    return 'Bestätigen';
+});
+
+async function executeConfirmedAction() {
+    const action = confirmAction.value;
+    confirmAction.value = null;
+    if (action === 'REJECTED') await setRequestState('REJECTED');
+    else if (action === 'CANCELLED') await setRequestState('CANCELLED');
+    else if (action === 'ARCHIVE') await archiveRequest();
+}
 
 async function loadRepairDevice() {
     if (!repairReq.value?.device?.id) {
@@ -298,31 +410,42 @@ async function onRepairStepGraphUpdate() {
     await syncRequestStateView();
 }
 
-async function onSubmit() {
-    if (selectedDevice.value && repairReq.value) {
-        isVisible.value = false;
-        await $fetch('/api/v1/staff/repair-device', {
-            method: 'POST',
-            body: {
-                deviceId: selectedDevice.value.id,
-                displayName: selectedDevice.value.name,
-                requestId: repairReq.value.id,
-            },
-        });
-        await syncRequestStateView();
-        await loadRepairDevice();
-    }
+async function onDeviceSelected(device: { id: string; name: string }) {
+    if (!repairReq.value) return;
+    isVisible.value = false;
+    await $fetch('/api/v1/staff/repair-device', {
+        method: 'POST',
+        body: {
+            deviceId: device.id,
+            displayName: device.name,
+            requestId: repairReq.value.id,
+        },
+    });
+    await syncRequestStateView();
+    await loadRepairDevice();
 }
 
 async function saveRepairDevice() {
-    await $fetch(`/api/v1/staff/repair-device/${ repairDevice.value?.id }`, {
-        method: 'PUT',
-        body: {
-            displayName: displayName.value,
-            serialNumber: serialNumber.value,
-            notes: notes.value,
-        },
-    });
+    if (saveLoading.value) return;
+    saveLoading.value = true;
+
+    try {
+        await $fetch(`/api/v1/staff/repair-device/${ repairDevice.value?.id }`, {
+            method: 'PUT',
+            body: {
+                displayName: displayName.value,
+                serialNumber: serialNumber.value,
+                notes: notes.value,
+            },
+        });
+        showToast({ mode: ToastMode.Success, message: 'Gerät gespeichert.' });
+    }
+    catch {
+        showToast({ mode: ToastMode.Error, message: 'Speichern fehlgeschlagen. Bitte erneut versuchen.' });
+    }
+    finally {
+        saveLoading.value = false;
+    }
 }
 
 async function openChat() {
@@ -348,17 +471,13 @@ async function setRequestState(status: Extract<RepairRequestStatus, 'CANCELLED' 
     try {
         await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/state`, {
             method: 'PUT',
-            body: {
-                status,
-            },
+            body: { status },
         });
     }
     catch {
         repairReq.value.status = previousStatus;
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'State update failed',
-        });
+        showToast({ mode: ToastMode.Error, message: 'Statusänderung fehlgeschlagen. Bitte erneut versuchen.' });
+        return;
     }
 
     await syncRequestStateView();
@@ -369,22 +488,19 @@ async function setRepairStatus(status: RepairStatus) {
         return;
     }
 
+    showMoreStatus.value = false;
     repairStatusOverride.value = status;
 
     try {
         await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/repair-status`, {
             method: 'PUT',
-            body: {
-                status,
-            },
+            body: { status },
         });
     }
     catch {
         repairStatusOverride.value = null;
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Repair status update failed',
-        });
+        showToast({ mode: ToastMode.Error, message: 'Reparaturstatus konnte nicht aktualisiert werden.' });
+        return;
     }
 
     await syncRequestStateView();
@@ -396,9 +512,15 @@ async function archiveRequest() {
         return;
     }
 
-    await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/archive`, {
-        method: 'POST',
-    });
+    try {
+        await $fetch(`/api/v1/staff/request/${ repairReq.value.id }/archive`, {
+            method: 'POST',
+        });
+    }
+    catch {
+        showToast({ mode: ToastMode.Error, message: 'Archivierung fehlgeschlagen. Bitte erneut versuchen.' });
+        return;
+    }
 
     await syncRequestStateView();
 }
@@ -418,36 +540,77 @@ async function archiveRequest() {
         }
     }
 
+    &-params {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        padding: 16px;
+        border-radius: 8px;
+
+        background: $darkgray800;
+    }
+
     &-device {
         padding: 16px;
         border-radius: 8px;
         background: $darkgray800;
 
         &-create {
-            margin-bottom: 16px;
-        }
-
-        &_popup {
             display: flex;
-            flex-direction: row;
-            gap: 16px;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 12px;
 
-            &-container {
-                overflow: scroll;
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-
-                height: 80vh;
-            }
+            font-size: 13px;
+            line-height: 1.4;
+            color: $lightgray400;
         }
 
         &-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 0;
+        }
+
+        &-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px 0;
+
+            &:first-child {
+                padding-top: 0;
+            }
+
+            &:last-child {
+                padding-bottom: 0;
+            }
+
+            & + & {
+                border-top: 1px solid $darkgray700;
+            }
+
+            h3 {
+                margin: 0;
+
+                font-size: 11px;
+                font-weight: 600;
+                color: $lightgray400;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+            }
+        }
+
+        &-status-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        &-status-more {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
         }
     }
 
@@ -501,11 +664,49 @@ async function archiveRequest() {
         gap: 8px;
     }
 
-    &-device-status-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+    &-state-hint {
+        font-size: 12px;
+        line-height: 1.4;
+        color: $lightgray400;
     }
+
+}
+
+.request-status-more-btn {
+    cursor: pointer;
+
+    padding: 2px 0;
+    border: none;
+
+    font-size: 12px;
+    color: $lightgray400;
+    text-align: left;
+
+    background: none;
+
+    transition: color 0.15s ease;
+
+    &:hover {
+        color: $lightgray150;
+    }
+
+    &:focus-visible {
+        border-radius: 2px;
+        color: $lightgray150;
+        outline: 2px solid $primary500;
+        outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+.confirm-message {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: $lightgray150;
 
     &-params {
         display: flex;

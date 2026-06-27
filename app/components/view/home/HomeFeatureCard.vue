@@ -1,14 +1,11 @@
 <template>
-    <article
-        class="home-feature-card"
-        data-reveal
-    >
+    <article class="home-feature-card">
         <div class="home-feature-card_icon-wrap">
             <div class="home-feature-card_icon">
                 <Icon :name="icon"/>
             </div>
         </div>
-        <h3 class="home-feature-card_title">{{ title }}</h3>
+        <h4 class="home-feature-card_title">{{ title }}</h4>
         <p class="home-feature-card_description">{{ description }}</p>
         <ul class="home-feature-card_list">
             <li
@@ -47,6 +44,10 @@ defineProps<{
 
     background: linear-gradient(160deg, varToRgba(darkgray875, 0.95), varToRgba(darkgray950, 0.95));
     box-shadow: 0 18px 30px -22px varToRgba(info500, 0.55);
+
+    @include pc {
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease-out;
+    }
 
     &::before {
         content: none;

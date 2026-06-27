@@ -1,7 +1,7 @@
 <template>
     <common-page
         v-if="repairReq && repairReq.customer"
-        :title="`Reperaturauftrag von ${ repairReq?.customer.displayName }`"
+        :title="`Reparaturauftrag von ${ repairReq?.customer.displayName }`"
     >
         <ui-status :status="displayStatus"/>
         <repair-savings-tile :summary="savingsSummary"/>
@@ -16,7 +16,7 @@
             class="request-compact"
         >
             <div class="request-customer">
-                <h2>Assigned Staff</h2>
+                <h2>Zuständiger Mitarbeiter</h2>
                 <template v-if="repairReq.assignedStaff">
                     {{ repairReq.assignedStaff.displayName }}
                 </template>
@@ -39,7 +39,7 @@
             class="request-container"
         >
             <div class="request-customer">
-                <h2>Assigned Staff</h2>
+                <h2>Zuständiger Mitarbeiter</h2>
                 <template v-if="repairReq.assignedStaff">
                     {{ repairReq.assignedStaff.displayName }}
                 </template>
@@ -49,9 +49,9 @@
                 <ui-button @click="openChat()">Chat</ui-button>
             </div>
             <div class="request-params">
-                <h2>Customer Notes</h2>
+                <h2>Kundenangaben</h2>
                 <labeled-text :value="repairReq?.subject">
-                    Subject
+                    Betreff
                 </labeled-text>
                 <labeled-text :value="repairReq?.deviceName">
                     Geraetename
@@ -76,17 +76,17 @@
                 </labeled-text>
             </div>
             <div class="request-device">
-                <h2>Repair Device</h2>
+                <h2>Gerät</h2>
                 <div
                     v-if="repairDevice"
                     class="request-device-container"
                 >
-                    <ui-labeled-text :value="repairDevice?.displayName">Display Name</ui-labeled-text>
-                    <ui-labeled-text :value="repairDevice?.serialNumber">Serial Number</ui-labeled-text>
-                    <ui-labeled-text :value="repairDevice?.device?.name">Name</ui-labeled-text>
-                    <ui-labeled-text :value="repairDevice?.device?.deviceBrand.name">Brand</ui-labeled-text>
+                    <ui-labeled-text :value="repairDevice?.displayName">Bezeichnung</ui-labeled-text>
+                    <ui-labeled-text :value="repairDevice?.serialNumber">Seriennummer</ui-labeled-text>
+                    <ui-labeled-text :value="repairDevice?.device?.name">Gerätetyp</ui-labeled-text>
+                    <ui-labeled-text :value="repairDevice?.device?.deviceBrand.name">Marke</ui-labeled-text>
                     <ui-labeled-text :value="(repairDevice?.device?.purchaseValue ?? '') as string">Neukaufwert</ui-labeled-text>
-                    <ui-labeled-text :value="repairDevice?.notes">Notes</ui-labeled-text>
+                    <ui-labeled-text :value="repairDevice?.notes">Hinweise</ui-labeled-text>
                 </div>
                 <template v-else>
                     <h3>Noch nicht erstellt</h3>

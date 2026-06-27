@@ -6,7 +6,7 @@
             '--status-color': styleColor,
         }"
     >
-        {{ status }}
+        {{ labelMap.get(status) ?? status }}
     </div>
 </template>
 
@@ -21,6 +21,25 @@ const props = defineProps({
         type: String as PropType<StatusValue>,
     },
 });
+
+const labelMap: Map<StatusValue, string> = new Map([
+    [RepairRequestStatus.ACCEPTED, 'Angenommen'],
+    [RepairRequestStatus.CANCELLED, 'Abgebrochen'],
+    [RepairRequestStatus.COMPLETED, 'Abgeschlossen'],
+    [RepairRequestStatus.REJECTED, 'Abgelehnt'],
+    [RepairRequestStatus.WAITING_FOR_RESPONSE, 'Wartet auf Antwort'],
+    [RepairRequestStatus.WAITING_FOR_REVIEW, 'Wartet auf Prüfung'],
+    [RepairStatus.ON_THE_WAY_TO_SHOP, 'Unterwegs'],
+    [RepairStatus.RECEIVED, 'Empfangen'],
+    [RepairStatus.IN_DIAGNOSIS, 'Diagnose'],
+    [RepairStatus.WAITING_FOR_PARTS, 'Wartet auf Teile'],
+    [RepairStatus.IN_REPAIR, 'In Reparatur'],
+    [RepairStatus.IN_QA, 'Qualitätsprüfung'],
+    [RepairStatus.IN_OUTGOING, 'Im Ausgang'],
+    [RepairStatus.ON_THE_WAY_TO_CUSTOMER, 'Unterwegs'],
+    [RepairStatus.DELIVERED, 'Zugestellt'],
+    [RepairStatus.ARCHIVED, 'Archiviert'],
+]);
 
 const colorMap: Map<StatusValue, string> = new Map([
     [RepairRequestStatus.ACCEPTED, colorsList.primary600],

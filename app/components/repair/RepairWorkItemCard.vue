@@ -6,10 +6,13 @@
         <div class="work-item-card-header">
             <div class="work-item-card-copy">
                 <div class="work-item-card-order">Order {{ item.orderIndex }}</div>
-                <div class="work-item-card-title"><Icon
-                    v-if="item.workItemType.icon"
-                    :name="item.workItemType.icon"
-                />{{ item.title }}</div>
+                <div class="work-item-card-title">
+                    <Icon
+                        v-if="item.workItemType.icon"
+                        class="work-item-card-type-icon"
+                        :name="item.workItemType.icon"
+                    />{{ item.title }}
+                </div>
             </div>
             <repair-work-item-status-badge :status="item.status"/>
         </div>
@@ -119,10 +122,12 @@ const itemParts = computed(() => props.partOrders.filter(partOrder => partOrder.
 
     padding: 16px;
     border: 1px solid $lightgray150;
-    border-left: 4px solid var(--accent-color);
     border-radius: 16px;
 
     background: linear-gradient(180deg, rgb(255 255 255 / 3%), rgb(255 255 255 / 1%));
+
+    animation: card-enter 280ms cubic-bezier(0.25, 1, 0.5, 1) both;
+    animation-delay: calc(min(var(--card-i, 0), 7) * 35ms);
 
     &-header {
         display: flex;
@@ -154,12 +159,17 @@ const itemParts = computed(() => props.partOrders.filter(partOrder => partOrder.
 
     &-title {
         display: flex;
-        gap: 16px;
+        gap: 8px;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
 
         font-size: 16px;
         font-weight: 700;
+    }
+
+    &-type-icon {
+        flex-shrink: 0;
+        color: var(--accent-color);
     }
 
     &-meta {
@@ -182,6 +192,24 @@ const itemParts = computed(() => props.partOrders.filter(partOrder => partOrder.
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
+    }
+}
+
+@keyframes card-enter {
+    from {
+        transform: translateY(8px);
+        opacity: 0;
+    }
+
+    to {
+        transform: none;
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .work-item-card {
+        animation: none;
     }
 }
 </style>

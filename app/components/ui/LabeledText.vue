@@ -44,7 +44,7 @@ const compValue = computed(() => {
             return props.value;
         }
     }
-    return 'n/a';
+    return '—';
 });
 </script>
 

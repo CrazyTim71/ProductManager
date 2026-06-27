@@ -6,7 +6,7 @@
         >
             <slot/>
         </div>
-        <div class="colorpicker_controll">
+        <div class="colorpicker_control">
             <input
                 v-model="color"
                 class="colorpicker"
